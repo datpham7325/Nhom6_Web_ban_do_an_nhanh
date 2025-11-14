@@ -1,0 +1,81 @@
+/* CSS cho navbar */
+nav {
+    background: linear-gradient(135deg, #d32f2f, #f57c00);
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.menu {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+    padding: 0 1rem;
+}
+
+.menu-item {
+    text-align: center;
+    transition: transform 0.3s;
+}
+
+.menu-item:hover {
+    transform: translateY(-5px);
+}
+
+.menu_img {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #fff;
+    transition: all 0.3s;
+}
+
+.menu-item:hover .menu_img {
+    border-color: #ffeb3b;
+    box-shadow: 0 5px 15px rgba(255,235,59,0.3);
+}
+
+.menu-item p {
+    margin-top: 0.5rem;
+    font-weight: 900;
+    font-size: 0.9rem;
+    color: #fff;
+    transition: color 0.3s;
+}
+
+/* Màu sắc cho từng loại menu - Mặc định trắng */
+.th, .ggvv, .my, .gs, .bg, .tm, .nuoc { 
+    color: #fff; 
+}
+
+/* Active state - Khi được chọn sẽ thành vàng */
+.menu-item.active .th,
+.menu-item.active .ggvv,
+.menu-item.active .my,
+.menu-item.active .gs,
+.menu-item.active .bg,
+.menu-item.active .tm,
+.menu-item.active .nuoc {
+    color: #ffeb3b !important;
+    text-shadow: 0 0 10px rgba(255,235,59,0.5);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .menu {
+        gap: 1rem;
+    }
+    
+    .menu_img {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .menu-item p {
+        font-size: 0.8rem;
+    }
+}
