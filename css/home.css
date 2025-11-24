@@ -1,0 +1,215 @@
+/* ============================
+   TỔNG THỂ TRANG
+   ============================ */
+
+body {
+    margin: 0;
+    font-family: 'Nunito', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* ============================
+   THANH TÌM KIẾM
+   ============================ */
+
+nav {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Ô tìm kiếm */
+.search {
+    width: 250px;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #f57c00; /* CAM */
+    font-size: 15px;
+    transition: 0.3s;
+}
+
+.search:focus {
+    border-color: #f57c00;
+    box-shadow: 0 0 6px rgba(245, 124, 0, 0.3);
+    outline: none;
+}
+
+/* Nút tìm */
+.btnTim {
+    padding: 8px 16px;
+    background: #d32f2f;     /* ĐỎ */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-right: 5%;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.btnTim:hover {
+    background: #c62828;     /* ĐỎ ĐẬM */
+    box-shadow: 0 4px 10px rgba(211, 47, 47, 0.3);
+}
+
+/* ============================
+   MENU CHỌN LOẠI MÓN
+   ============================ */
+
+select {
+    width: 120px;
+    padding: 8px 12px;
+    border: 1px solid #f57c00; /* CAM */
+    border-radius: 6px;
+    font-size: 15px;
+    background-color: #fff;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+select:focus {
+    border-color: #f57c00;
+    box-shadow: 0 0 6px rgba(245,124,0,0.3);
+    outline: none;
+}
+
+/* ============================
+   PHẦN GIÁ
+   ============================ */
+
+.donGia {
+    width: 150px;
+    padding: 8px 12px;
+    border: 1px solid #f57c00; /* CAM */
+    border-radius: 6px;
+    font-size: 15px;
+    transition: 0.3s;
+}
+
+.donGia:focus {
+    border-color: #f57c00;
+    box-shadow: 0 0 6px rgba(245,124,0,0.3);
+    outline: none;
+}
+
+/* ============================
+   THÔNG BÁO
+   ============================ */
+
+.noti {
+    margin-top: 15px;
+    color: #d32f2f;
+    font-weight: bold;
+}
+
+/* ============================
+   BẢNG NỘI DUNG
+   ============================ */
+
+form {
+    width: 90%;
+}
+
+table {
+    border-collapse: collapse;
+    table-layout: fixed;
+    width: 100%;
+    box-shadow: 0 0 12px rgba(211, 47, 47, 0.2); /* SHADOW ĐỎ NHẸ */
+}
+
+.tdphai {
+    text-align: right;
+    padding-right: 2%;
+}
+
+h2 {
+    padding-left: 2%;
+    color: #d32f2f; /* TIÊU ĐỀ ĐỎ */
+}
+
+/* Nút thêm món ăn */
+.btnNew {
+    width: 20%;
+    height: 35px;
+    border-radius: 5px;
+    border: none;
+    background-color: #d32f2f;
+    color: #fff;
+    font-weight: bolder;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.btnNew:hover {
+    background-color: #c62828;
+    box-shadow: 0 4px 10px rgba(211,47,47,0.3);
+}
+
+/* Ô tiêu đề và nội dung */
+.tieude td, .noidung td {
+    border: 2px solid #f57c00; /* CAM */
+    text-align: center;
+    vertical-align: middle;
+    height: 40px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    padding: 2px 6px;
+}
+
+/* Dòng chẵn */
+.noidung:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* Header bảng */
+.tieude {
+    background-color: rgba(211, 47, 47, 0.1); /* ĐỎ NHẠT */
+}
+
+.tieude td {
+    font-weight: bold;
+}
+
+/* ============================
+   PHÂN TRANG
+   ============================ */
+
+.phantrang {
+    margin-top: 10px;
+    text-align: right;
+    padding-right: 2%;
+}
+
+.phantrang a {
+    text-decoration: none;
+    color: #c62828;
+    font-weight: bold;
+}
+
+/* ============================
+   ICON
+   ============================ */
+
+.bi-trash {
+    color: #d32f2f; /* ĐỎ */
+    padding-left: 25px;
+}
+
+/* Thành công */
+.success-message {
+    color: green;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 10px;
+}

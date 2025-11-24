@@ -1,0 +1,195 @@
+/* ====================================================== */
+/* BODY CHUNG CHO TOÀN TRANG */
+/* ====================================================== */
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    margin: 0;
+    min-height: 100vh;
+    font-family: 'Nunito', sans-serif;
+    margin-top: 20px;
+    background-color: #fff;
+}
+
+/* ====================================================== */
+/* FORM CHỨA */
+/* ====================================================== */
+.form2 {
+    width: 50%;             
+    margin-top: 30px;      
+    padding: 20px;
+    /* Giữ đổ bóng để nổi bật form */
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+.form2 h2 {
+    text-align: center;
+    color: #d32f2f; /* Tiêu đề đổi sang ĐỎ (theo Theme) */
+    margin-bottom: 20px;
+    text-transform: uppercase;
+}
+
+.form2 table {
+    border-collapse: separate; 
+    border-spacing: 0 15px;    
+    width: 100%;
+}
+
+/* ====================================================== */
+/* XỬ LÝ TIÊU ĐỀ VÀ NỘI DUNG FORM */
+/* ====================================================== */
+.form2 .tieude {
+    font-weight: bold;
+    width: 30%;
+    color: #000; /* Giữ nguyên màu chữ gốc (Đen) */
+}
+
+.form2 .noidung {
+    width: 70%;
+    vertical-align: middle; 
+}
+
+/* Input giữ viền cam cho đẹp, nhưng màu chữ bên trong vẫn đen */
+.form2 input[type="text"], 
+.form2 textarea, 
+.form2 select {
+    border: 1px solid #f57c00; /* Viền Cam đồng bộ Home */
+    border-radius: 4px;
+    padding: 5px 10px;
+    outline: none;
+    font-family: 'Nunito', sans-serif;
+    transition: 0.3s;
+}
+
+.form2 input[type="text"]:focus, 
+.form2 textarea:focus, 
+.form2 select:focus {
+    box-shadow: 0 0 5px rgba(245, 124, 0, 0.5);
+    border-color: #e65100;
+}
+
+.form2 .noidung input {
+    width: 90%;
+    height: 35px;
+}
+
+.form2 .noidung textarea {
+    width: 90%;
+    height: 80px;
+    margin-top: 5px;
+    resize: vertical;
+}
+
+/* ====================================================== */
+/* XỬ LÝ DROPDOWN VÀ NÚT XÓA */
+/* ====================================================== */
+.dropdownsize select {
+    width: 49%;
+    height: 45px;
+}
+
+/* Nút Xóa - Giữ nguyên màu gốc (Đỏ tươi #ff4d4d) */
+.dropdownsize input[type="submit"] {
+    width: 25%;
+    height: 35px;
+    font-weight: bold;
+    background-color: #ff4d4d; /* GỐC */
+    color: #fff;
+    border-radius: 5px;
+    border: none;
+    transition: ease-in-out 0.3s;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.dropdownsize input[type="submit"]:hover {
+    background-color: red; /* GỐC */
+    transition: 0.3s;
+}
+
+/* ====================================================== */
+/* XỬ LÝ CỤM THÊM LOẠI/SIZE MỚI */
+/* ====================================================== */
+.themloai, .themsize {
+    width: 70%;
+}
+
+.loaimoi, .sizemoi {
+    width: 45% !important;
+    height: 35px;
+}
+
+/* Nút Thêm nhỏ - Giữ nguyên màu gốc (Xanh dương #4da0ff) */
+.btnloaimoi, .btnsizemoi {
+    width: 25%;
+    height: 35px;
+    font-weight: bold;
+    background-color: #4da0ff; /* GỐC */
+    color: #fff;
+    border-radius: 5px;
+    border: none;
+    transition: ease-in-out 0.3s;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.btnloaimoi:hover, .btnsizemoi:hover {
+    background-color: blue; /* GỐC */
+    transition: 0.3s;
+}
+
+/* ====================================================== */
+/* CÁC NÚT BẤM CHUNG (CUỐI FORM) */
+/* ====================================================== */
+.tdbtn {
+    text-align: center;
+    padding-top: 20px;
+}
+
+.tdbtn input {
+    width: 140px;
+    height: 40px;
+    font-weight: bold;
+    border-radius: 6px;
+    border: none;
+    color: #fff;
+    margin: 0 10px;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+/* Nút Thêm Mới - Giữ nguyên màu gốc (Xanh lá #5be572) */
+.btnAdd {
+    background-color: #5be572; /* GỐC */
+    transition: ease-in-out 0.3s;
+}
+
+.btnAdd:hover {
+    background-color: green; /* GỐC */
+    transition: 0.3s;
+}
+
+/* Nút Quay Lại - Giữ nguyên màu gốc (Xanh dương #4da0ff) */
+.btnBack {
+    background-color: #4da0ff; /* GỐC */
+    transition: ease-in-out 0.3s;
+}
+
+.btnBack:hover {
+    background-color: blue; /* GỐC */
+    transition: 0.3s;
+}
+
+/* ====================================================== */
+/* THÔNG BÁO */
+/* ====================================================== */
+.success-message {
+    color: green;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
