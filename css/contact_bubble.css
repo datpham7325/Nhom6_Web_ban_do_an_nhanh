@@ -1,0 +1,315 @@
+/* ===== FLOATING CONTACT BUBBLE STYLES ===== */
+.floating-contact {
+    position: fixed;
+    bottom: 100px; /* Đẩy lên cao hơn để tránh trùng với giỏ hàng */
+    right: 30px;
+    z-index: 1000;
+}
+
+.contact-bubble {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, #d32f2f, #f57c00);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 8px 25px rgba(211, 47, 47, 0.4);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    animation: float 3s ease-in-out infinite;
+}
+
+.contact-bubble::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    background: linear-gradient(135deg, #d32f2f, #f57c00);
+    border-radius: 50%;
+    z-index: -1;
+    opacity: 0.3;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.contact-bubble:hover {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 12px 35px rgba(211, 47, 47, 0.6);
+}
+
+.contact-bubble i {
+    color: white;
+    font-size: 1.8rem;
+    transition: transform 0.3s ease;
+}
+
+.contact-bubble:hover i {
+    transform: scale(1.2);
+}
+
+/* Contact Dropdown - Hiển thị bên TRÁI bong bóng */
+.contact-dropdown {
+    position: absolute;
+    bottom: 90px;
+    right: 0;
+    background: white;
+    min-width: 280px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    z-index: 1003;
+    border-radius: 15px;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px) scale(0.95);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 3px solid #ffe0b2;
+    pointer-events: none;
+}
+
+/* QUAN TRỌNG: Đảm bảo dropdown ẩn mặc định */
+.floating-contact:not(.active) .contact-dropdown {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: translateY(20px) scale(0.95) !important;
+    pointer-events: none !important;
+}
+
+/* Hiển thị dropdown khi active */
+.floating-contact.active .contact-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.contact-dropdown::before {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    right: 25px;
+    width: 20px;
+    height: 20px;
+    background: white;
+    transform: rotate(45deg);
+    border-right: 3px solid #ffe0b2;
+    border-bottom: 3px solid #ffe0b2;
+}
+
+.contact-dropdown-header {
+    text-align: center;
+    padding: 1.5rem 1.5rem 1rem;
+    border-bottom: 2px solid #ffe0b2;
+    background: linear-gradient(135deg, #fff8e1, #ffecb3);
+}
+
+.contact-dropdown-header h3 {
+    color: #d32f2f;
+    font-size: 1.3rem;
+    font-weight: 900;
+    margin-bottom: 0.5rem;
+}
+
+.contact-dropdown-header p {
+    color: #666;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.contact-dropdown-methods {
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem 0;
+}
+
+.contact-dropdown-method {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s ease;
+    border-bottom: 1px solid #f0f0f0;
+    background: white;
+}
+
+.contact-dropdown-method:last-child {
+    border-bottom: none;
+}
+
+.contact-dropdown-method:hover {
+    background: #fff8e1;
+    padding-left: 1.8rem;
+}
+
+.contact-dropdown-method:hover .contact-dropdown-icon {
+    transform: scale(1.1);
+}
+
+.contact-dropdown-icon {
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, #d32f2f, #f57c00);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+}
+
+.contact-dropdown-icon i {
+    color: white;
+    font-size: 1.2rem;
+}
+
+.contact-dropdown-info {
+    flex: 1;
+}
+
+.contact-dropdown-info h4 {
+    color: #d32f2f;
+    font-weight: 900;
+    margin-bottom: 0.2rem;
+    font-size: 0.95rem;
+}
+
+.contact-dropdown-info p {
+    color: #666;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.contact-dropdown-info span {
+    color: #f57c00;
+    font-weight: 700;
+}
+
+/* Notification Badge */
+.contact-notification {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ffeb3b;
+    color: #d32f2f;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 900;
+    animation: ping 2s ease-in-out infinite;
+    border: 2px solid white;
+}
+
+/* Animation Keyframes */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.3;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.2;
+    }
+}
+
+@keyframes ping {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+/* Responsive cho bong bóng chat */
+@media (max-width: 576px) {
+    .floating-contact {
+        bottom: 80px; /* Điều chỉnh cho mobile */
+        right: 15px;
+    }
+    
+    .contact-bubble {
+        width: 55px;
+        height: 55px;
+    }
+    
+    .contact-dropdown {
+        min-width: 250px;
+        bottom: 70px;
+        right: -10px;
+    }
+    
+    .contact-dropdown::before {
+        right: 20px;
+    }
+    
+    .contact-dropdown-header {
+        padding: 1rem 1rem 0.8rem;
+    }
+    
+    .contact-dropdown-header h3 {
+        font-size: 1.1rem;
+    }
+    
+    .contact-dropdown-method {
+        padding: 0.8rem 1rem;
+    }
+    
+    .contact-dropdown-icon {
+        width: 40px;
+        height: 40px;
+        margin-right: 0.8rem;
+    }
+    
+    .contact-dropdown-icon i {
+        font-size: 1rem;
+    }
+    
+    .contact-dropdown-info h4 {
+        font-size: 0.9rem;
+    }
+    
+    .contact-dropdown-info p {
+        font-size: 0.8rem;
+    }
+}
+
+/* Đảm bảo dropdown không bị ẩn khi hover vào dropdown */
+.contact-dropdown:hover {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) scale(1) !important;
+    pointer-events: auto !important;
+}
+
+/* Overlay cho mobile dropdown */
+.dropdown-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1002;
+}
+
+.dropdown-overlay.active {
+    display: block;
+}

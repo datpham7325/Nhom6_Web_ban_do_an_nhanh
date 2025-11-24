@@ -1,0 +1,329 @@
+/* ===== RESET VÀ BASE STYLES ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #fff;
+}
+
+/* ===== LAYOUT CONTAINERS ===== */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.content-container {
+    padding: 2rem 0;
+}
+
+/* ===== HEADER STYLES ===== */
+.page-header {
+    text-align: center;
+    padding: 3rem 0;
+    background: linear-gradient(135deg, #d32f2f, #f57c00);
+    color: white;
+    border-radius: 15px;
+    margin-bottom: 2rem;
+}
+
+.page-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+.page-header p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+/* ===== GRID LAYOUT CHÍNH ===== */
+.main-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 3rem;
+    margin-bottom: 3rem;
+}
+
+/* ===== CỘT THÔNG TIN ===== */
+.info-column {
+    padding: 1rem;
+}
+
+.section-title {
+    color: #d32f2f;
+    margin-bottom: 2rem;
+    font-size: 1.5rem;
+    border-bottom: 2px solid #ffe0b2;
+    padding-bottom: 0.5rem;
+}
+
+/* Các mục thông tin */
+.info-item {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: #fffbf0;
+    border-radius: 8px;
+    border-left: 4px solid #f57c00;
+}
+
+.info-title {
+    color: #f57c00;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+/* Khung lưu ý */
+.note-box {
+    background: #fff8e1;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 2px solid #ffe0b2;
+    margin-top: 2rem;
+}
+
+.note-title {
+    color: #d32f2f;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.note-item {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.note-item:last-child {
+    margin-bottom: 0;
+}
+
+/* ===== CỘT FORM ===== */
+.form-column {
+    padding: 1rem;
+}
+
+/* Alert messages */
+.alert {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    border: 2px solid;
+    font-weight: bold;
+}
+
+.alert-success {
+    background: #e8f5e8;
+    color: #2e7d32;
+    border-color: #c8e6c9;
+}
+
+.alert-error {
+    background: #ffebee;
+    color: #d32f2f;
+    border-color: #ffcdd2;
+}
+
+/* Form styles */
+.booking-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+    padding: 1rem;
+    border: 2px solid #ffe0b2;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 100px;
+    font-family: inherit;
+}
+
+/* Hiệu ứng focus cho form elements */
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: #f57c00;
+    box-shadow: 0 0 0 3px rgba(245, 124, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+/* Nút submit */
+.submit-btn {
+    padding: 1rem;
+    background: #d32f2f;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
+    background: #b71c1c;
+}
+
+/* ===== SECTION KHÔNG GIAN NHÀ HÀNG ===== */
+.restaurant-space {
+    margin-top: 3rem;
+}
+
+.section-title.center {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.space-container {
+    background: #f5f5f5;
+    padding: 2rem;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.space-description {
+    color: #666;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+/* Grid các dịch vụ */
+.occasion-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.occasion-item {
+    text-align: center;
+    padding: 1rem;
+    background: white;
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+}
+
+.occasion-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.occasion-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.occasion-name {
+    font-weight: bold;
+    color: #d32f2f;
+    margin: 0;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 15px;
+    }
+    
+    .main-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    /* Đảo thứ tự hiển thị trên mobile */
+    .main-grid .info-column {
+        order: 2;
+    }
+    
+    .main-grid .form-column {
+        order: 1;
+    }
+    
+    .page-header h1 {
+        font-size: 2rem;
+    }
+    
+    .page-header p {
+        font-size: 1rem;
+    }
+    
+    .occasion-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .page-header {
+        padding: 2rem 1rem;
+    }
+    
+    .page-header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .section-title {
+        font-size: 1.3rem;
+    }
+    
+    .occasion-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-input,
+    .form-select,
+    .form-textarea {
+        padding: 0.8rem;
+    }
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.main-grid > * {
+    animation: fadeIn 0.6s ease-out;
+}
+
+.form-column {
+    animation-delay: 0.2s;
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+    .submit-btn,
+    .note-box {
+        display: none;
+    }
+    
+    .container {
+        max-width: none;
+    }
+}

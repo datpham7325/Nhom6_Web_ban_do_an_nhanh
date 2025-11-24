@@ -1,0 +1,581 @@
+/* ===== RESET VÀ CẤU HÌNH CHUNG ===== */
+* {
+    box-sizing: border-box; /* Đảm bảo padding và border không làm thay đổi kích thước */
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa; /* Màu nền nhẹ nhàng */
+    color: #333;
+    line-height: 1.6; /* Khoảng cách dòng dễ đọc */
+}
+
+.container {
+    max-width: 1200px; /* Giới hạn chiều rộng tối đa */
+    margin: 0 auto; /* Căn giữa */
+    padding: 20px;
+}
+
+/* ===== HEADER TRANG ===== */
+.page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    background: linear-gradient(135deg, #d32f2f, #f57c00); /* Gradient màu đỏ cam */
+    padding: 3rem 2rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(211, 47, 47, 0.3);
+}
+
+.page-header h1 {
+    font-size: 2.5rem;
+    color: white;
+    margin-bottom: 1rem;
+    font-weight: 900; /* Chữ đậm */
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.page-header p {
+    font-size: 1.2rem;
+    color: white;
+    opacity: 0.9;
+}
+
+.content-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* ===== THÔNG BÁO ALERT ===== */
+.alert {
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+    font-weight: 600;
+    text-align: center;
+    animation: slideIn 0.5s ease-out; /* Hiệu ứng trượt xuống */
+}
+
+.alert-success {
+    background: #e8f5e8;
+    color: #2e7d32;
+    border: 2px solid #c8e6c9;
+}
+
+.alert-error {
+    background: #ffebee;
+    color: #d32f2f;
+    border: 2px solid #ffcdd2;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* ===== LƯỚI HIỂN THỊ VOUCHER ===== */
+.vouchers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); /* Tự động responsive */
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+/* ===== THẺ VOUCHER ===== */
+.voucher-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    border: 3px solid transparent;
+    min-height: 500px; /* Chiều cao tối thiểu cho thẻ */
+    display: flex;
+    flex-direction: column;
+}
+
+.voucher-card:hover {
+    transform: translateY(-10px); /* Hiệu ứng nổi lên khi hover */
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+/* Các loại voucher với màu sắc khác nhau */
+.discount-card {
+    background: linear-gradient(135deg, #fff8e1, #ffecb3);
+    border-color: #ffd54f;
+}
+
+.burger-card {
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+    border-color: #64b5f6;
+}
+
+.freeship-card {
+    background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
+    border-color: #81c784;
+}
+
+/* ===== ẢNH COMBO GIA ĐÌNH - ĐIỀU CHỈNH CHIỀU CAO ===== */
+.combo-family-image {
+    width: 100%;
+    height: 280px; /* Tăng chiều cao lên gần bằng khung combo */
+    object-fit: cover; /* Đảm bảo ảnh không bị méo */
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    border: 3px solid #ffe0b2;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.combo-family-image:hover {
+    transform: scale(1.02); /* Hiệu ứng phóng to nhẹ khi hover */
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+/* Badge trên voucher */
+.voucher-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #d32f2f, #f57c00);
+    color: white;
+    padding: 0.5rem 1.5rem;
+    border-radius: 20px;
+    font-weight: 900;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
+    z-index: 2; /* Đảm bảo badge luôn trên cùng */
+}
+
+/* Icon voucher */
+.voucher-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+/* Tiêu đề voucher */
+.voucher-title {
+    color: #d32f2f;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    font-weight: 900;
+}
+
+.burger-card .voucher-title {
+    color: #1976d2;
+}
+
+.freeship-card .voucher-title {
+    color: #388e3c;
+}
+
+/* Mô tả voucher */
+.voucher-description {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: #5d4037;
+}
+
+/* Chi tiết voucher */
+.voucher-details {
+    background: rgba(255, 255, 255, 0.7);
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    text-align: left;
+    flex-grow: 1; /* Chiếm không gian còn lại */
+}
+
+.voucher-details p {
+    margin: 0.8rem 0;
+    color: #5d4037;
+    font-size: 1rem;
+}
+
+/* Mã voucher */
+.voucher-code {
+    background: rgba(211, 47, 47, 0.1);
+    color: #d32f2f;
+    padding: 0.3rem 0.8rem;
+    border-radius: 6px;
+    font-weight: 900;
+    font-family: monospace; /* Font đặc biệt cho mã */
+}
+
+/* Form voucher */
+.voucher-form {
+    margin: 0;
+    margin-top: auto; /* Đẩy form xuống dưới cùng */
+}
+
+/* Nút sử dụng voucher */
+.btn-voucher {
+    width: 100%;
+    padding: 1.2rem;
+    background: linear-gradient(135deg, #d32f2f, #f57c00);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 900;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(211, 47, 47, 0.3);
+}
+
+.burger-card .btn-voucher {
+    background: linear-gradient(135deg, #1976d2, #42a5f5);
+    box-shadow: 0 6px 20px rgba(25, 118, 210, 0.3);
+}
+
+.freeship-card .btn-voucher {
+    background: linear-gradient(135deg, #388e3c, #66bb6a);
+    box-shadow: 0 6px 20px rgba(56, 142, 60, 0.3);
+}
+
+.btn-voucher:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(211, 47, 47, 0.4);
+}
+
+.burger-card .btn-voucher:hover {
+    box-shadow: 0 10px 30px rgba(25, 118, 210, 0.4);
+}
+
+.freeship-card .btn-voucher:hover {
+    box-shadow: 0 10px 30px rgba(56, 142, 60, 0.4);
+}
+
+.btn-voucher:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ===== VOUCHER ĐANG ĐƯỢC ÁP DỤNG ===== */
+.active-voucher {
+    background: linear-gradient(135deg, #d32f2f, #f57c00);
+    color: white;
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 30px rgba(211, 47, 47, 0.3);
+    animation: pulse 2s infinite; /* Hiệu ứng nhấp nháy */
+}
+
+.active-voucher-content {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 2rem;
+    align-items: center;
+}
+
+.active-voucher-icon {
+    font-size: 3rem;
+}
+
+.active-voucher-info h3 {
+    margin-bottom: 0.5rem;
+    font-size: 1.4rem;
+}
+
+.active-voucher-info p {
+    margin: 0.3rem 0;
+    opacity: 0.9;
+}
+
+.active-voucher-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-go-to-cart {
+    background: white;
+    color: #d32f2f;
+    padding: 0.8rem 1.5rem;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 900;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.btn-go-to-cart:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+}
+
+.btn-remove-voucher {
+    background: transparent;
+    color: white;
+    border: 2px solid white;
+    padding: 0.8rem 1.5rem;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 900;
+    transition: all 0.3s ease;
+}
+
+.btn-remove-voucher:hover {
+    background: white;
+    color: #d32f2f;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 10px 30px rgba(211, 47, 47, 0.3);
+    }
+    50% {
+        box-shadow: 0 10px 40px rgba(211, 47, 47, 0.5);
+    }
+    100% {
+        box-shadow: 0 10px 30px rgba(211, 47, 47, 0.3);
+    }
+}
+
+/* ===== FORM NHẬP MÃ THỦ CÔNG ===== */
+.manual-voucher {
+    background: #fff8e1;
+    padding: 2.5rem;
+    border-radius: 20px;
+    text-align: center;
+    margin-bottom: 2rem;
+    border: 3px solid #ffe0b2;
+}
+
+.section-title {
+    color: #d32f2f;
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    font-weight: 900;
+}
+
+.voucher-input-form {
+    display: flex;
+    gap: 1rem;
+    max-width: 500px;
+    margin: 0 auto 1rem;
+}
+
+.voucher-input-form input {
+    flex: 1;
+    padding: 1rem 1.5rem;
+    border: 2px solid #ffe0b2;
+    border-radius: 12px;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.voucher-input-form input:focus {
+    border-color: #f57c00;
+    box-shadow: 0 0 0 3px rgba(245, 124, 0, 0.1);
+}
+
+.voucher-input-form input.error {
+    border-color: #d32f2f;
+    box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
+}
+
+.voucher-input-form button {
+    background: #d32f2f;
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.voucher-input-form button:hover {
+    background: #b71c1c;
+    transform: translateY(-2px);
+}
+
+.voucher-input-form button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.voucher-note {
+    color: #666;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* ===== BANNER KHUYẾN MÃI ===== */
+.promo-banner {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.promo-banner img {
+    width: 100%;
+    max-width: 800px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    height: 300px; /* Chiều cao cố định cho banner */
+    object-fit: cover; /* Đảm bảo ảnh không bị méo */
+}
+
+/* ===== THÔNG TIN BỔ SUNG ===== */
+.voucher-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.info-item {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    text-align: center;
+    border: 2px solid #ffe0b2;
+    transition: all 0.3s ease;
+}
+
+.info-item:hover {
+    transform: translateY(-5px);
+    border-color: #f57c00;
+    box-shadow: 0 10px 25px rgba(245, 124, 0, 0.15);
+}
+
+.info-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.info-item h4 {
+    color: #d32f2f;
+    margin-bottom: 1rem;
+    font-weight: 900;
+}
+
+.info-item p {
+    color: #666;
+    line-height: 1.5;
+}
+
+/* ===== TRẠNG THÁI LOADING ===== */
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #ffffff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+    .vouchers-grid {
+        grid-template-columns: 1fr; /* 1 cột trên mobile */
+    }
+    
+    .active-voucher-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 1.5rem;
+    }
+    
+    .active-voucher-actions {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .voucher-input-form {
+        flex-direction: column;
+    }
+    
+    .voucher-info {
+        grid-template-columns: 1fr;
+    }
+    
+    .voucher-card {
+        padding: 2rem 1.5rem;
+        min-height: 450px; /* Giảm chiều cao trên mobile */
+    }
+    
+    .page-header h1 {
+        font-size: 2rem;
+    }
+    
+    /* Điều chỉnh ảnh combo trên mobile */
+    .combo-family-image {
+        height: 220px; /* Giảm chiều cao ảnh trên mobile */
+    }
+    
+    .promo-banner img {
+        height: 200px; /* Giảm chiều cao banner trên mobile */
+    }
+}
+
+@media (max-width: 480px) {
+    .voucher-title {
+        font-size: 1.6rem;
+    }
+    
+    .voucher-icon {
+        font-size: 3rem;
+    }
+    
+    .manual-voucher {
+        padding: 2rem 1.5rem;
+    }
+    
+    .container {
+        padding: 15px;
+    }
+    
+    .voucher-card {
+        min-height: 400px; /* Tiếp tục giảm chiều cao trên màn hình nhỏ */
+    }
+    
+    .combo-family-image {
+        height: 180px; /* Tiếp tục giảm chiều cao ảnh */
+    }
+}
+
+/* ===== CẢI THIỆN HIỆU ỨNG CHO ẢNH ===== */
+.combo-family-image {
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.combo-family-image:hover {
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+}
+
+/* ===== ĐẢM BẢO TÍNH NHẤT QUÁN CHO TẤT CẢ ẢNH ===== */
+.voucher-image {
+    width: 100%;
+    height: 280px; /* Chiều cao đồng nhất cho tất cả ảnh voucher */
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    border: 3px solid #ffe0b2;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.voucher-image:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}

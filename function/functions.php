@@ -1,54 +1,40 @@
 <?php
-    // //Hàm xử lý mã món ăn. Vd: Biến đổi 1 => GR001
-    // function ChuanHoaMa_GR($mma)
-    // {
-    //     $kq = str_pad($mma, 3, '0', STR_PAD_LEFT);
-    //     $kq = "GR" . $kq; 
-    //     return $kq;
-    // }   
+// Hàm lấy tên size từ MaSize
+function getSizeName($maSize) {
+    global $conn;
     
-    // //Hàm xử lý mã món ăn. Vd: Biến đổi 1 => GR001
-    // function ChuanHoaMa_MY($mma)
-    // {
-    //     $kq = str_pad($mma, 3, '0', STR_PAD_LEFT);
-    //     $kq = "MY" . $kq; 
-    //     return $kq;
-    // }    
-
-    //Chuẩn hóa mã theo định dạng 3 số
-    function ChuanHoaMa($mma)
-    {
-        $kq = str_pad($mma, 3, '0', STR_PAD_LEFT);
-        return $kq;
-    }
-        
+    $sql = "SELECT TenSize FROM KichThuoc WHERE MaSize = ?";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "i", $maSize);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
     
-    //Hàm xử lý kích thước món ăn
-    function SizeMonAn($size)
-    {
-        $hostname = "localhost";
-        $username = "root";
-        $password = "";
-        $database = "quanly_cua_hang";
-
-        $conn = mysqli_connect($hostname, $username, $password, $database);
-        $strSQL_Size = "SELECT * FROM kichthuoc";
-        $result_Size = mysqli_query($conn, $strSQL_Size);
-
-        while( mysqli_num_rows($result_Size)>0 )
-        {
-            if( $row = mysqli_fetch_assoc($result_Size) )
-            {
-                if( $size == $row['MaSize'] )
-                {
-                    $kq = $row['TenSize'];
-                    break;
-                }
-            }
-        }
-
-        return $kq;
+    if($row = mysqli_fetch_assoc($result)) {
+        return $row['TenSize'];
     }
+    
+    return 'Mặc định';
+}
 
+// Hàm format tiền
+function formatCurrency($amount) {
+    return number_format($amount, 0, ',', '.') . '₫';
+}
 
+// Hàm kiểm tra sản phẩm có trong giỏ hàng không
+function isInCart($maBienThe) {
+    if(!isset($_SESSION['loggedin'])) return false;
+    
+    global $conn;
+    $maUser = $_SESSION['MaUser'];
+    
+    $sql = "SELECT COUNT(*) as count FROM GioHang WHERE MaUser = ? AND MaBienThe = ?";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "ii", $maUser, $maBienThe);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $row = mysqli_fetch_assoc($result);
+    
+    return $row['count'] > 0;
+}
 ?>

@@ -5,6 +5,14 @@ USE quanly_cua_hang;
 -- Xóa theo thứ tự ngược (từ con tới cha)
 -- --------------------------------------------------------
 
+DROP TABLE IF EXISTS UserThongBao;
+DROP TABLE IF EXISTS ThongBao;
+DROP TABLE IF EXISTS DatSuKien;
+DROP TABLE IF EXISTS DatBan;
+DROP TABLE IF EXISTS DanhGia;
+DROP TABLE IF EXISTS ChiTietDonHang;
+DROP TABLE IF EXISTS DonHang;
+DROP TABLE IF EXISTS GioHang;
 DROP TABLE IF EXISTS BienTheMonAn;
 DROP TABLE IF EXISTS MonAn;
 DROP TABLE IF EXISTS KichThuoc;
@@ -22,13 +30,11 @@ CREATE TABLE LoaiMonAn (
     TenLoai VARCHAR(100) NOT NULL UNIQUE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
 -- 2. Bảng Kích Thước
 CREATE TABLE KichThuoc (
     MaSize INT AUTO_INCREMENT PRIMARY KEY,
     TenSize VARCHAR(50) NOT NULL UNIQUE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 
 -- 3. Bảng Món Ăn (Đã thêm lại cột 'MoTa')
 CREATE TABLE MonAn (
@@ -42,7 +48,6 @@ CREATE TABLE MonAn (
         ON DELETE SET NULL 
         ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 
 -- 4. Bảng Biến Thể Món Ăn (Kết hợp Món Ăn + Size + Giá)
 CREATE TABLE BienTheMonAn (
@@ -62,7 +67,7 @@ CREATE TABLE BienTheMonAn (
     UNIQUE(MaMonAn, MaSize)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Bảng users có kết hợp với hash password
+-- 5. Bảng Users có kết hợp với hash password
 CREATE TABLE Users (
     MaUser INT AUTO_INCREMENT PRIMARY KEY,
     Ho VARCHAR(100) NOT NULL,
@@ -78,21 +83,150 @@ CREATE TABLE Users (
     INDEX idx_sdt (SDT)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- 6. Bảng Giỏ hàng
+CREATE TABLE GioHang (
+    MaGioHang INT AUTO_INCREMENT PRIMARY KEY,
+    MaUser INT NOT NULL,
+    MaBienThe INT NOT NULL,
+    SoLuong INT NOT NULL DEFAULT 1,
+    NgayThem DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (MaUser) REFERENCES Users(MaUser) ON DELETE CASCADE,
+    FOREIGN KEY (MaBienThe) REFERENCES BienTheMonAn(MaBienThe) ON DELETE CASCADE,
+    UNIQUE(MaUser, MaBienThe)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 7. Bảng Đơn hàng
+CREATE TABLE DonHang (
+    MaDonHang INT AUTO_INCREMENT PRIMARY KEY,
+    MaUser INT NOT NULL,
+    TongTien DECIMAL(18,2) NOT NULL,
+    TrangThai ENUM('cho_xac_nhan', 'dang_xu_ly', 'dang_giao', 'hoan_thanh', 'da_huy') DEFAULT 'cho_xac_nhan',
+    PhuongThucThanhToan ENUM('tien_mat', 'chuyen_khoan', 'the', 'vi_dien_tu'),
+    DiaChiGiaoHang TEXT,
+    SDTGiaoHang VARCHAR(15),
+    GhiChu TEXT,
+    NgayDat DATETIME DEFAULT CURRENT_TIMESTAMP,
+    NgayCapNhat DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (MaUser) REFERENCES Users(MaUser) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 8. Bảng Chi tiết đơn hàng
+CREATE TABLE ChiTietDonHang (
+    MaChiTiet INT AUTO_INCREMENT PRIMARY KEY,
+    MaDonHang INT NOT NULL,
+    MaBienThe INT NOT NULL,
+    SoLuong INT NOT NULL,
+    DonGia DECIMAL(18,2) NOT NULL,
+    ThanhTien DECIMAL(18,2) NOT NULL,
+    FOREIGN KEY (MaDonHang) REFERENCES DonHang(MaDonHang) ON DELETE CASCADE,
+    FOREIGN KEY (MaBienThe) REFERENCES BienTheMonAn(MaBienThe) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 9. Bảng Đánh giá
+CREATE TABLE DanhGia (
+    MaDanhGia INT AUTO_INCREMENT PRIMARY KEY,
+    MaUser INT NOT NULL,
+    MaMonAn INT,
+    Diem INT NOT NULL CHECK (Diem BETWEEN 1 AND 5),
+    NoiDung TEXT,
+    AnhReview VARCHAR(500),
+    TrangThai ENUM('cho_duyet', 'da_duyet', 'tu_choi') DEFAULT 'cho_duyet',
+    NgayTao DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (MaUser) REFERENCES Users(MaUser) ON DELETE CASCADE,
+    FOREIGN KEY (MaMonAn) REFERENCES MonAn(MaMonAn) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 10. Bảng Đặt bàn
+CREATE TABLE DatBan (
+    MaDatBan INT AUTO_INCREMENT PRIMARY KEY,
+    MaUser INT NOT NULL,
+    HoTen VARCHAR(100) NOT NULL,
+    SDT VARCHAR(15) NOT NULL,
+    SoNguoi INT NOT NULL,
+    NgayDat DATE NOT NULL,
+    GioDat TIME NOT NULL,
+    GhiChu TEXT,
+    TrangThai ENUM('cho_xac_nhan', 'da_xac_nhan', 'da_huy') DEFAULT 'cho_xac_nhan',
+    NgayTao DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (MaUser) REFERENCES Users(MaUser) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 11. Bảng Đặt sự kiện
+CREATE TABLE DatSuKien (
+    MaSuKien INT AUTO_INCREMENT PRIMARY KEY,
+    MaUser INT NOT NULL,
+    TenSuKien VARCHAR(255) NOT NULL,
+    HoTenNguoiDaiDien VARCHAR(100) NOT NULL,
+    SDT VARCHAR(15) NOT NULL,
+    Email VARCHAR(255),
+    SoNguoi INT NOT NULL,
+    NgaySuKien DATE NOT NULL,
+    GioBatDau TIME NOT NULL,
+    GioKetThuc TIME NOT NULL,
+    LoaiSuKien ENUM('sinh_nhat', 'hoi_nghi', 'tiec_cuoi', 'gia_dinh', 'khac'),
+    YeuCauDacBiet TEXT,
+    TrangThai ENUM('cho_xac_nhan', 'da_xac_nhan', 'da_huy') DEFAULT 'cho_xac_nhan',
+    NgayTao DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (MaUser) REFERENCES Users(MaUser) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 12. Bảng Thông báo
+CREATE TABLE ThongBao (
+    MaThongBao INT AUTO_INCREMENT PRIMARY KEY,
+    TieuDe VARCHAR(255) NOT NULL,
+    NoiDung TEXT NOT NULL,
+    LoaiThongBao ENUM('khuyen_mai', 'don_hang', 'he_thong', 'su_kien'),
+    HinhAnh VARCHAR(500),
+    NgayBatDau DATETIME,
+    NgayKetThuc DATETIME,
+    TrangThai ENUM('active', 'inactive') DEFAULT 'active',
+    NgayTao DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 13. Bảng User nhận thông báo
+CREATE TABLE UserThongBao (
+    MaUserThongBao INT AUTO_INCREMENT PRIMARY KEY,
+    MaUser INT NOT NULL,
+    MaThongBao INT NOT NULL,
+    DaDoc BOOLEAN DEFAULT FALSE,
+    NgayDoc DATETIME,
+    FOREIGN KEY (MaUser) REFERENCES Users(MaUser) ON DELETE CASCADE,
+    FOREIGN KEY (MaThongBao) REFERENCES ThongBao(MaThongBao) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- --------------------------------------------------------
 -- PHẦN 0: XÓA DỮ LIỆU CŨ ĐỂ CẬP NHẬT
 -- (Xóa theo thứ tự ngược, từ con tới cha)
 -- --------------------------------------------------------
 
+DELETE FROM UserThongBao;
+DELETE FROM ThongBao;
+DELETE FROM DatSuKien;
+DELETE FROM DatBan;
+DELETE FROM DanhGia;
+DELETE FROM ChiTietDonHang;
+DELETE FROM DonHang;
+DELETE FROM GioHang;
 DELETE FROM BienTheMonAn;
 DELETE FROM MonAn;
 DELETE FROM KichThuoc;
 DELETE FROM LoaiMonAn;
+DELETE FROM Users;
 
 -- Đặt lại AUTO_INCREMENT về 1
 ALTER TABLE LoaiMonAn AUTO_INCREMENT = 1;
 ALTER TABLE KichThuoc AUTO_INCREMENT = 1;
 ALTER TABLE MonAn AUTO_INCREMENT = 1;
 ALTER TABLE BienTheMonAn AUTO_INCREMENT = 1;
+ALTER TABLE Users AUTO_INCREMENT = 1;
+ALTER TABLE GioHang AUTO_INCREMENT = 1;
+ALTER TABLE DonHang AUTO_INCREMENT = 1;
+ALTER TABLE ChiTietDonHang AUTO_INCREMENT = 1;
+ALTER TABLE DanhGia AUTO_INCREMENT = 1;
+ALTER TABLE DatBan AUTO_INCREMENT = 1;
+ALTER TABLE DatSuKien AUTO_INCREMENT = 1;
+ALTER TABLE ThongBao AUTO_INCREMENT = 1;
+ALTER TABLE UserThongBao AUTO_INCREMENT = 1;
 
 -- --------------------------------------------------------
 -- PHẦN 1: CHÈN 6 LOẠI MÓN ĂN
@@ -315,15 +449,14 @@ UPDATE MonAn SET MoTa = '1 ly nước ngọt giải khát có gas vị chanh.' W
 UPDATE MonAn SET MoTa = '1 ly thức uống cacao đậm vị, pha với sữa và đá.' WHERE MaMonAn = 46;
 
 -- --------------------------------------------------------
--- PHẦN 6: CHÈN TÀI KHOẢN ADMIN (MẬT KHẨU ĐÃ HASH SHA-256)
+-- PHẦN 6: CHÈN TÀI KHOẢN ADMIN VÀ KHÁCH HÀNG
 -- --------------------------------------------------------
 
 -- Xóa dữ liệu cũ nếu có
 DELETE FROM Users;
 ALTER TABLE Users AUTO_INCREMENT = 1;
 
--- Mật khẩu gốc: Admin@123
--- Hash SHA-256: 6f1ed002ab5595859014ebf0951522d9d9c4a0d3c9c1c4e4a0d3c9c1c4e4a0d3
+-- Tài khoản Admin
 INSERT INTO Users (Ho, Ten, SDT, Email, DiaChi, QuyenHan, MatKhau)
 VALUES (
     'Quản',
@@ -332,5 +465,156 @@ VALUES (
     'admin@quanlycuahang.com',
     '123 Đường Quản Lý, Quận 1, TP.HCM',
     'admin',
-    UNHEX(SHA2('Admin@123', 256))  -- Hash trực tiếp trong SQL
+    UNHEX(SHA2('Admin@123', 256))
 );
+
+-- Tài khoản Khách hàng 1
+INSERT INTO Users (Ho, Ten, SDT, Email, DiaChi, QuyenHan, MatKhau)
+VALUES (
+    'Nguyễn Văn',
+    'An',
+    '0912345678',
+    'nguyenvanan@gmail.com',
+    '456 Nguyễn Văn Linh, Quận 7, TP.HCM',
+    'khachhang',
+    UNHEX(SHA2('Customer@123', 256))
+);
+
+-- Tài khoản Khách hàng 2
+INSERT INTO Users (Ho, Ten, SDT, Email, DiaChi, QuyenHan, MatKhau)
+VALUES (
+    'Trần Thị',
+    'Bình',
+    '0923456789',
+    'tranthibinh@gmail.com',
+    '789 Lê Văn Việt, Quận 9, TP.HCM',
+    'khachhang',
+    UNHEX(SHA2('Customer@123', 256))
+);
+
+-- --------------------------------------------------------
+-- PHẦN 7: CHÈN DỮ LIỆU GIỎ HÀNG
+-- --------------------------------------------------------
+
+-- Giỏ hàng của khách hàng 1
+INSERT INTO GioHang (MaUser, MaBienThe, SoLuong) VALUES
+(2, 1, 2),  -- 2 MIẾNG GÀ GIÒN VUI VẺ
+(2, 43, 1), -- PEPSI Vừa
+(2, 35, 1); -- BÁNH XOÀI ĐÀO
+
+-- Giỏ hàng của khách hàng 2
+INSERT INTO GioHang (MaUser, MaBienThe, SoLuong) VALUES
+(3, 5, 1),  -- 1 GÀ GIÒN VUI VẺ + 1 KHOAI TÂY CHIÊN VỪA + 1 NƯỚC NGỌT
+(3, 37, 2); -- KEM SUNDAE DÂU
+
+-- --------------------------------------------------------
+-- PHẦN 8: CHÈN DỮ LIỆU ĐƠN HÀNG
+-- --------------------------------------------------------
+
+-- Đơn hàng 1 của khách hàng 1
+INSERT INTO DonHang (MaUser, TongTien, TrangThai, PhuongThucThanhToan, DiaChiGiaoHang, SDTGiaoHang, GhiChu) 
+VALUES (2, 147000, 'hoan_thanh', 'tien_mat', '456 Nguyễn Văn Linh, Quận 7, TP.HCM', '0912345678', 'Giao hàng giờ hành chính');
+
+-- Chi tiết đơn hàng 1
+INSERT INTO ChiTietDonHang (MaDonHang, MaBienThe, SoLuong, DonGia, ThanhTien) VALUES
+(1, 1, 1, 66000, 66000),  -- 2 MIẾNG GÀ GIÒN VUI VẺ
+(1, 43, 2, 12000, 24000), -- PEPSI Vừa
+(1, 35, 1, 15000, 15000), -- BÁNH XOÀI ĐÀO
+(1, 10, 1, 40000, 40000); -- MÌ Ý SỐT CAY VỪA
+
+-- Đơn hàng 2 của khách hàng 2
+INSERT INTO DonHang (MaUser, TongTien, TrangThai, PhuongThucThanhToan, DiaChiGiaoHang, SDTGiaoHang) 
+VALUES (3, 88000, 'dang_xu_ly', 'chuyen_khoan', '789 Lê Văn Việt, Quận 9, TP.HCM', '0923456789');
+
+-- Chi tiết đơn hàng 2
+INSERT INTO ChiTietDonHang (MaDonHang, MaBienThe, SoLuong, DonGia, ThanhTien) VALUES
+(2, 5, 1, 58000, 58000),  -- 1 GÀ GIÒN VUI VẺ + 1 KHOAI TÂY CHIÊN VỪA + 1 NƯỚC NGỌT
+(2, 37, 2, 15000, 30000); -- KEM SUNDAE DÂU
+
+-- --------------------------------------------------------
+-- PHẦN 9: CHÈN DỮ LIỆU ĐÁNH GIÁ
+-- --------------------------------------------------------
+
+-- Đánh giá của khách hàng 1
+INSERT INTO DanhGia (MaUser, MaMonAn, Diem, NoiDung, TrangThai) VALUES
+(2, 1, 5, 'Gà giòn rất ngon, da giòn thịt mềm. Sẽ quay lại ủng hộ!', 'da_duyet'),
+(2, 10, 4, 'Mì Ý sốt cay vừa miệng, hương vị đậm đà. Rất đáng thử!', 'da_duyet');
+
+-- Đánh giá của khách hàng 2
+INSERT INTO DanhGia (MaUser, MaMonAn, Diem, NoiDung, TrangThai) VALUES
+(3, 5, 5, 'Combo rất tiện lợi, đầy đủ và ngon miệng. Giá cả hợp lý!', 'da_duyet'),
+(3, 37, 3, 'Kem sundae dâu ngon nhưng hơi ngọt. Có thể giảm đường một chút.', 'cho_duyet');
+
+-- --------------------------------------------------------
+-- PHẦN 10: CHÈN DỮ LIỆU ĐẶT BÀN
+-- --------------------------------------------------------
+
+-- Đặt bàn của khách hàng 1
+INSERT INTO DatBan (MaUser, HoTen, SDT, SoNguoi, NgayDat, GioDat, GhiChu, TrangThai) VALUES
+(2, 'Nguyễn Văn An', '0912345678', 4, '2024-02-15', '18:30:00', 'Có 2 trẻ em', 'da_xac_nhan');
+
+-- Đặt bàn của khách hàng 2
+INSERT INTO DatBan (MaUser, HoTen, SDT, SoNguoi, NgayDat, GioDat, GhiChu, TrangThai) VALUES
+(3, 'Trần Thị Bình', '0923456789', 6, '2024-02-20', '19:00:00', 'Sinh nhật bé', 'cho_xac_nhan');
+
+-- --------------------------------------------------------
+-- PHẦN 11: CHÈN DỮ LIỆU ĐẶT SỰ KIỆN
+-- --------------------------------------------------------
+
+-- Đặt sự kiện của khách hàng 1
+INSERT INTO DatSuKien (MaUser, TenSuKien, HoTenNguoiDaiDien, SDT, Email, SoNguoi, NgaySuKien, GioBatDau, GioKetThuc, LoaiSuKien, YeuCauDacBiet, TrangThai) VALUES
+(2, 'Sinh nhật bé Minh 5 tuổi', 'Nguyễn Văn An', '0912345678', 'nguyenvanan@gmail.com', 20, '2024-02-25', '14:00:00', '16:00:00', 'sinh_nhat', 'Trang trí theo chủ đề siêu nhân, có bánh sinh nhật', 'da_xac_nhan');
+
+-- Đặt sự kiện của khách hàng 2
+INSERT INTO DatSuKien (MaUser, TenSuKien, HoTenNguoiDaiDien, SDT, Email, SoNguoi, NgaySuKien, GioBatDau, GioKetThuc, LoaiSuKien, YeuCauDacBiet, TrangThai) VALUES
+(3, 'Tiệc liên hoan công ty', 'Trần Thị Bình', '0923456789', 'tranthibinh@gmail.com', 30, '2024-03-01', '18:00:00', '20:00:00', 'hoi_nghi', 'Cần khu vực riêng, có máy chiếu', 'cho_xac_nhan');
+
+-- --------------------------------------------------------
+-- PHẦN 12: CHÈN DỮ LIỆU THÔNG BÁO
+-- --------------------------------------------------------
+
+-- Thông báo khuyến mãi 1
+INSERT INTO ThongBao (TieuDe, NoiDung, LoaiThongBao, HinhAnh, NgayBatDau, NgayKetThuc, TrangThai) VALUES
+('KHUYẾN MÃI ĐẶC BIỆT - COMBO GIA ĐÌNH', 'Ưu đãi đặc biệt combo gia đình 4 người chỉ 299.000 VND. Áp dụng từ 01/02/2024 đến 29/02/2024.', 'khuyen_mai', 'khuyenmai/combo-gia-dinh.jpg', '2024-02-01 00:00:00', '2024-02-29 23:59:59', 'active');
+
+-- Thông báo khuyến mãi 2
+INSERT INTO ThongBao (TieuDe, NoiDung, LoaiThongBao, HinhAnh, NgayBatDau, NgayKetThuc, TrangThai) VALUES
+('MUA 1 TẶNG 1 - THỨ 3 HÀNG TUẦN', 'Mỗi thứ 3 hàng tuần, mua 1 burger bất kỳ được tặng 1 burger cùng loại. Áp dụng cho tất cả chi nhánh.', 'khuyen_mai', 'khuyenmai/mua-1-tang-1.jpg', '2024-02-01 00:00:00', '2024-12-31 23:59:59', 'active');
+
+-- Thông báo hệ thống
+INSERT INTO ThongBao (TieuDe, NoiDung, LoaiThongBao, TrangThai) VALUES
+('NÂNG CẤP HỆ THỐNG', 'Hệ thống sẽ được nâng cấp từ 02:00 đến 04:00 ngày 15/02/2024. Xin lỗi vì sự bất tiện này.', 'he_thong', 'inactive');
+
+-- --------------------------------------------------------
+-- PHẦN 13: CHÈN DỮ LIỆU USER THÔNG BÁO
+-- --------------------------------------------------------
+
+-- Khách hàng 1 nhận thông báo
+INSERT INTO UserThongBao (MaUser, MaThongBao, DaDoc) VALUES
+(2, 1, TRUE),
+(2, 2, FALSE);
+
+-- Khách hàng 2 nhận thông báo
+INSERT INTO UserThongBao (MaUser, MaThongBao, DaDoc) VALUES
+(3, 1, FALSE),
+(3, 2, FALSE);
+
+-- --------------------------------------------------------
+-- PHẦN 14: KIỂM TRA DỮ LIỆU
+-- --------------------------------------------------------
+
+-- Hiển thị số lượng bản ghi trong mỗi bảng
+SELECT 
+    'LoaiMonAn' as Table_Name, COUNT(*) as Record_Count FROM LoaiMonAn
+UNION ALL SELECT 'KichThuoc', COUNT(*) FROM KichThuoc
+UNION ALL SELECT 'MonAn', COUNT(*) FROM MonAn
+UNION ALL SELECT 'BienTheMonAn', COUNT(*) FROM BienTheMonAn
+UNION ALL SELECT 'Users', COUNT(*) FROM Users
+UNION ALL SELECT 'GioHang', COUNT(*) FROM GioHang
+UNION ALL SELECT 'DonHang', COUNT(*) FROM DonHang
+UNION ALL SELECT 'ChiTietDonHang', COUNT(*) FROM ChiTietDonHang
+UNION ALL SELECT 'DanhGia', COUNT(*) FROM DanhGia
+UNION ALL SELECT 'DatBan', COUNT(*) FROM DatBan
+UNION ALL SELECT 'DatSuKien', COUNT(*) FROM DatSuKien
+UNION ALL SELECT 'ThongBao', COUNT(*) FROM ThongBao
+UNION ALL SELECT 'UserThongBao', COUNT(*) FROM UserThongBao;
