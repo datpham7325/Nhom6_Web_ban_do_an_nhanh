@@ -1,0 +1,139 @@
+
+.nut-bam{
+    text-align: center;
+}
+
+.btnXoa{
+    width: 30%;
+    height: 35px;
+    border-radius: 5px;
+    border: none;
+    background-color: #ff4d4d;
+    color: #fff;
+    font-weight: bolder;
+    transition: ease-in-out 0.3s;
+}
+
+.btnXoa:hover{
+    background-color: red;
+    transition: 0.3s
+}
+
+
+
+/* ////////////////////////// */ 
+body{
+    font-family: 'Nunito', sans-serif;
+    width: 100%;
+    margin: 0;
+}
+
+table{
+    border-collapse: collapse;
+    margin: 0 auto;
+    margin-top: 100px;
+    width: 50%;
+    border-radius: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    border: 1px solid black;
+    background-color: rgb(255, 238, 229);
+}
+
+h2{
+    text-align: center;
+    color: red;
+}
+
+td{
+    border: 1px solid black;
+    padding: 20px;
+}
+
+
+
+
+
+
+
+
+
+
+.tieude{
+    text-align: center;
+    font-weight: 900;
+}
+
+.gia{
+    color: red;
+    font-weight: 900;
+}
+
+.ndtrai{
+    width: 10%;
+    text-align: center;
+}
+
+.ndphai{
+    width: 40%;
+    padding: 20px;
+}
+
+
+
+/* Nút chi tiết */
+.btndetail{
+    width: 50%;
+    height: 35px;
+    border-radius: 5px;
+    border: none;
+    background-color: #2ecc71;
+    color: #fff;
+    font-weight: bolder;
+    transition: ease-in-out 0.3s;
+}
+
+.btnchitiet:hover{
+    background-color: green;
+    transition: 0.3s
+}
+
+/* Nút xác xóa */
+.btndelete{
+    width: 70%;
+    height: 35px;
+    border-radius: 5px;
+    border: none;
+    background-color: #ff4d4d;
+    color: #fff;
+    font-weight: bolder;
+    transition: ease-in-out 0.3s;
+}
+
+
+.btndelete:hover{
+    background-color: red;
+    transition: 0.3s
+}
+
+/* Nút quay về */
+.btnback{
+    width: 70%;
+    height: 35px;
+    border-radius: 5px;
+    border: none;
+    background-color: #4da0ff;
+    color: #fff;
+    font-weight: bolder;
+    transition: ease-in-out 0.3s;
+}
+
+.btnback:hover{
+    background-color: blue;
+    transition: 0.3s
+}
+
+.nut-bam {
+    width: 30%; 
+    text-align: center;
+}
