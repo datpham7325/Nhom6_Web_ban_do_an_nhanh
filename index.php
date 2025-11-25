@@ -48,7 +48,7 @@
         <div class="content-container">
             <div style="text-align: center;">
                 <!-- Hình ảnh khuyến mãi chính -->
-                <img src="img/khuyenmai/featured-promo.jpg" alt="Khuyến mãi" style="width: 100%; max-width: 600px; border-radius: 15px; margin-bottom: 2rem;">
+                <img src="img/khuyenmai/banner_khuyen_mai.jpg" alt="Khuyến mãi" style="width: 100%; max-width: 600px; border-radius: 15px; margin-bottom: 2rem;">
                 <!-- Tiêu đề khuyến mãi -->
                 <h3 style="color: #f57c00; margin-bottom: 1rem;">COMBO GIA ĐÌNH - TIẾT KIỆM 30%</h3>
                 <!-- Mô tả khuyến mãi -->

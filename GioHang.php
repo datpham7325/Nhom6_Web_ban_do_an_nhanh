@@ -105,9 +105,15 @@ if (!$conn) {
                     
                     mysqli_stmt_close($stmt);
                 } else {
-                    // Hiển thị khi giỏ hàng trống
-                    echo '<p class="empty-cart">Giỏ hàng của bạn đang trống.</p>';
-                    echo '<a href="ThucDon.php" class="btn-continue">Mua sắm ngay</a>';
+                    // Hiển thị khi giỏ hàng trống (Giao diện giống Đơn hàng)
+                    echo '<div class="empty-cart-state">';
+                    echo '    <div class="empty-icon">🛒</div>';
+                    echo '    <h3>Giỏ hàng đang trống</h3>';
+                    echo '    <p>Bạn chưa thêm món ăn nào. Hãy khám phá thực đơn ngay!</p>';
+                    echo '    <a href="ThucDon.php" class="btn-primary btn-empty-cart">';
+                    echo '        <span class="btn-icon">🍽️</span> Xem Thực Đơn';
+                    echo '    </a>';
+                    echo '</div>';
                     
                     mysqli_stmt_close($stmt);
                 }

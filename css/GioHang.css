@@ -25,14 +25,14 @@ body {
 
 .page-header h1 {
     font-size: 2.5rem;
-    color: #d32f2f;
+    color: white;
     margin-bottom: 1rem;
     font-weight: 900;
 }
 
 .page-header p {
     font-size: 1.2rem;
-    color: #666;
+    color: white;
 }
 
 .content-container {
@@ -424,5 +424,79 @@ body {
     
     .page-header h1 {
         font-size: 2rem;
+    }
+}
+
+/* Giao diện giỏ hàng trống (Giống DonHang.php) */
+.empty-cart-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    margin: 40px auto;
+    border: 2px solid #f8f9fa;
+}
+
+.empty-icon {
+    font-size: 80px;
+    margin-bottom: 20px;
+    opacity: 0.7;
+    animation: float 3s ease-in-out infinite;
+}
+
+.empty-cart-state h3 {
+    color: #333;
+    margin-bottom: 10px;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.empty-cart-state p {
+    color: #666;
+    margin-bottom: 30px;
+    font-size: 16px;
+}
+
+.btn-empty-cart {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px 30px;
+    background: linear-gradient(135deg, #d32f2f, #f57c00);
+    color: white;
+    text-decoration: none;
+    border-radius: 30px;
+    font-weight: 900;
+    transition: all 0.3s ease;
+    gap: 10px;
+    box-shadow: 0 4px 15px rgba(211, 47, 47, 0.3);
+}
+
+.btn-empty-cart:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(211, 47, 47, 0.4);
+    background: linear-gradient(135deg, #b71c1c, #e65100);
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Responsive cho mobile */
+@media (max-width: 480px) {
+    .empty-cart-state {
+        padding: 40px 20px;
+        margin: 20px auto;
+    }
+    
+    .empty-icon {
+        font-size: 60px;
+    }
+    
+    .empty-cart-state h3 {
+        font-size: 20px;
     }
 }

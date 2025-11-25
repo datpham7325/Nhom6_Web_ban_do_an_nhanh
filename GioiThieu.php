@@ -9,7 +9,6 @@
     <div class="content-container">
         <!-- Phần giới thiệu chính với hình ảnh cửa hàng -->
         <div style="text-align: center; margin-bottom: 3rem;">
-            <img src="img/gioithieu/jollibee-store.jpg" alt="Cửa hàng Jollibee" style="width: 100%; max-width: 800px; border-radius: 15px; margin-bottom: 2rem;">
             
             <!-- Tiêu đề câu chuyện thương hiệu -->
             <h3 style="color: #d32f2f; margin-bottom: 1.5rem;">CÂU CHUYỆN CỦA CHÚNG TÔI</h3>

@@ -65,7 +65,7 @@
 
               // Chuyển hướng theo quyền hạn của user
               if ($quyenHan === 'admin') {
-                header("Location: Admin.php");      // Chuyển đến trang Admin
+                header("Location: home.php");      // Chuyển đến trang Admin
               } elseif ($quyenHan === 'nhanvien') {
                 header("Location: NhanVien.php");   // Chuyển đến trang Nhân viên
               } else {

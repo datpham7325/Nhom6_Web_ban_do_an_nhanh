@@ -48,7 +48,6 @@ function initScrollAnimations() {
 function initInteractiveElements() {
     initSectionHighlights();
     initQuickNavigation();
-    initPrintButton();
     initAcceptButton();
 }
 
@@ -127,45 +126,6 @@ function smoothScroll(e) {
     }
 }
 
-// Nút in trang
-function initPrintButton() {
-    const printButton = document.createElement('button');
-    printButton.className = 'btn-print';
-    printButton.innerHTML = '🖨️ In điều khoản';
-    printButton.addEventListener('click', printTerms);
-    
-    // Thêm nút vào trang
-    const pageHeader = document.querySelector('.page-header');
-    if (pageHeader) {
-        pageHeader.style.position = 'relative';
-        printButton.style.position = 'absolute';
-        printButton.style.top = '20px';
-        printButton.style.right = '20px';
-        printButton.style.padding = '10px 15px';
-        printButton.style.background = 'rgba(255,255,255,0.2)';
-        printButton.style.color = 'white';
-        printButton.style.border = '1px solid rgba(255,255,255,0.3)';
-        printButton.style.borderRadius = '6px';
-        printButton.style.cursor = 'pointer';
-        printButton.style.backdropFilter = 'blur(10px)';
-        printButton.style.transition = 'all 0.3s ease';
-        printButton.style.fontSize = '14px';
-        printButton.style.fontWeight = '600';
-        
-        printButton.addEventListener('mouseenter', function() {
-            this.style.background = 'rgba(255,255,255,0.3)';
-            this.style.transform = 'translateY(-2px)';
-        });
-        
-        printButton.addEventListener('mouseleave', function() {
-            this.style.background = 'rgba(255,255,255,0.2)';
-            this.style.transform = 'translateY(0)';
-        });
-        
-        pageHeader.appendChild(printButton);
-    }
-}
-
 // Nút chấp nhận điều khoản
 function initAcceptButton() {
     const acceptButton = document.createElement('button');
@@ -210,20 +170,6 @@ function initAcceptButton() {
         acceptContainer.appendChild(acceptButton);
         termsContent.appendChild(acceptContainer);
     }
-}
-
-// Hàm in điều khoản
-function printTerms() {
-    // Lưu trạng thái ban đầu
-    const originalTitle = document.title;
-    document.title = 'Điều Khoản Sử Dụng - JOLIBEE';
-    
-    window.print();
-    
-    // Khôi phục tiêu đề
-    setTimeout(() => {
-        document.title = originalTitle;
-    }, 1000);
 }
 
 // Hàm chấp nhận điều khoản

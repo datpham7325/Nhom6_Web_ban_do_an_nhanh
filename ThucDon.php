@@ -37,7 +37,6 @@ $result = mysqli_query($conn, $strSQL);
 ?>
 
 <div class="container">
-    <!-- Banner Header cho trang thực đơn -->
     <div class="menu-banner">
         <div class="banner-content">
             <h1 class="banner-title">Thực Đơn Jollibee</h1>
@@ -46,7 +45,6 @@ $result = mysqli_query($conn, $strSQL);
     </div>
 
     <div class="content-container">
-        <!-- Grid hiển thị danh sách món ăn -->
         <div class="menu-grid">
             <?php
             // Kiểm tra có món ăn nào không
@@ -59,11 +57,9 @@ $result = mysqli_query($conn, $strSQL);
                     $tenMon = $row['MaLoai'] == 6 ? $row['TenMonAn'] . " " . $row['TenSize'] : $row['TenMonAn'];
                     $gia = number_format($row['DonGia'], 0, ",", ".");
                     ?>
-                    <!-- Item món ăn - click để mở modal chi tiết -->
                     <div class="menu-item" onclick="openModal('<?php echo $mbt; ?>', '<?php echo htmlspecialchars($tenMon); ?>', '<?php echo $anh; ?>', <?php echo $row['DonGia']; ?>, '<?php echo htmlspecialchars($row['MoTa'] ?? ''); ?>')">
                         <div class="item-image">
                             <img src='<?php echo $anh; ?>' alt='<?php echo htmlspecialchars($tenMon); ?>' onerror="this.src='img/default-food.jpg'">
-                            <!-- Overlay hiển thị khi hover -->
                             <div class="item-overlay">
                                 <div class="overlay-content">
                                     <span class="view-detail">👁️ Xem chi tiết</span>
@@ -90,52 +86,22 @@ $result = mysqli_query($conn, $strSQL);
     </div>
 </div>
 
-<!-- Modal chi tiết món ăn -->
 <div id="foodModal" class="modal">
     <div class="modal-content">
-        <!-- Nút đóng modal -->
         <span class="close-modal" onclick="closeModal()">&times;</span>
         <div class="modal-body">
-            <!-- Phần hình ảnh món ăn -->
             <div class="modal-image">
                 <img id="modalImage" src="" alt="">
             </div>
-            <!-- Phần thông tin món ăn -->
             <div class="modal-info">
                 <div class="modal-scrollable">
                     <h2 id="modalName"></h2>
-                    <!-- Mô tả món ăn -->
                     <div class="description-container">
                         <p id="modalDescription" class="modal-description"></p>
                     </div>
-                    
-                    <!-- Thông tin dinh dưỡng (hardcode) -->
-                    <div class="nutrition-info">
-                        <h4>Thông tin dinh dưỡng</h4>
-                        <div class="nutrition-grid">
-                            <div class="nutrition-item">
-                                <span class="nutrition-label">Calories</span>
-                                <span class="nutrition-value">450 kcal</span>
-                            </div>
-                            <div class="nutrition-item">
-                                <span class="nutrition-label">Protein</span>
-                                <span class="nutrition-value">25g</span>
-                            </div>
-                            <div class="nutrition-item">
-                                <span class="nutrition-label">Carb</span>
-                                <span class="nutrition-value">35g</span>
-                            </div>
-                            <div class="nutrition-item">
-                                <span class="nutrition-label">Fat</span>
-                                <span class="nutrition-value">20g</span>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
-                <!-- Phần đặt hàng -->
                 <div class="order-section">
-                    <!-- Chọn số lượng -->
                     <div class="quantity-selector">
                         <label>Số lượng:</label>
                         <div class="quantity-controls">
@@ -145,13 +111,11 @@ $result = mysqli_query($conn, $strSQL);
                         </div>
                     </div>
                     
-                    <!-- Hiển thị tổng tiền -->
                     <div class="price-section">
                         <span class="total-label">Thành tiền:</span>
                         <span id="modalTotalPrice" class="total-price">0 VND</span>
                     </div>
 
-                    <!-- Nút thêm vào giỏ hàng -->
                     <button class="btn-add-to-cart-modal" onclick="addToCartFromModal()">
                         🛒 Thêm vào giỏ hàng
                     </button>
@@ -161,7 +125,6 @@ $result = mysqli_query($conn, $strSQL);
     </div>
 </div>
 
-<!-- Modal xác nhận xóa món khỏi giỏ hàng -->
 <div id="confirmModal" class="modal confirm-modal">
     <div class="modal-content confirm-content">
         <div class="confirm-header">
@@ -178,40 +141,31 @@ $result = mysqli_query($conn, $strSQL);
     </div>
 </div>
 
-<!-- Sidebar giỏ hàng -->
 <div class="cart-sidebar">
     <div class="cart-header">
         <h3>Giỏ hàng của bạn</h3>
         <button class="btn-close-cart" onclick="closeCart()">×</button>
     </div>
     <div class="cart-content">
-        <!-- Danh sách items trong giỏ hàng -->
         <div id="cartItems" class="cart-items">
-            <!-- Cart items will be loaded here -->
-        </div>
+            </div>
         <div class="cart-footer">
-            <!-- Tổng tiền giỏ hàng -->
             <div class="cart-total">
                 <span>Tổng cộng:</span>
                 <span id="totalAmount">0 VND</span>
             </div>
-            <!-- Nút thanh toán -->
             <button class="btn-checkout" onclick="checkout()">Thanh toán</button>
         </div>
     </div>
 </div>
 
-<!-- Nút toggle mở/đóng giỏ hàng -->
 <button class="cart-toggle" onclick="toggleCart()">
     <span class="cart-icon">🛒</span>
-    <!-- Hiển thị số lượng món trong giỏ -->
     <span class="cart-count" id="cartCount">0</span>
 </button>
 
-<!-- Overlay để đóng các modal khi click bên ngoài -->
 <div class="overlay" onclick="closeModal(); closeCart(); closeConfirmModal();"></div>
 
-<!-- Liên kết CSS và JavaScript -->
 <link rel="stylesheet" href="css/thucdon.css">
 <script src="js/thucdon.js"></script>
 

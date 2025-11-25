@@ -180,13 +180,37 @@ header {
     color: #ffeb3b;
 }
 
-/* ===== DROPDOWN STYLES - ĐÃ SỬA HOÀN TOÀN ===== */
+/* Mobile Menu Close Button */
+.mobile-menu-close {
+    display: none;
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: #ffeb3b;
+    color: #d32f2f;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    z-index: 1003;
+}
+
+.mobile-menu-close:hover {
+    background: #d32f2f;
+    color: #ffeb3b;
+    transform: scale(1.1);
+}
+
+
+/* ===== DROPDOWN STYLES ===== */
 .user-dropdown,
 .booking-dropdown {
     position: relative;
 }
 
-/* Dropdown content - ALWAYS VISIBLE WHEN ACTIVE */
+/* Dropdown content */
 .user-dropdown-content,
 .booking-dropdown-content {
     display: none;
@@ -194,7 +218,7 @@ header {
     background: white;
     min-width: 220px;
     box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-    z-index: 1003;
+    z-index: 1001;
     border-radius: 12px;
     top: 100%;
     overflow: hidden;
@@ -400,6 +424,8 @@ header {
 .category-nav {
     background: linear-gradient(135deg, #d32f2f, #f57c00);
     padding: 1rem 0;
+    position: relative;
+    z-index: 999;
 }
 
 .menu-loai {
@@ -447,6 +473,8 @@ header {
 .main-content {
     min-height: 60vh;
     padding: 2rem 0;
+    position: relative;
+    z-index: 1;
 }
 
 /* ===== HERO SECTION ===== */
@@ -816,7 +844,7 @@ footer strong {
     position: fixed;
     bottom: 30px;
     right: 30px;
-    z-index: 1000;
+    z-index: 999;
 }
 
 .contact-bubble {
@@ -865,7 +893,7 @@ footer strong {
     width: 100%;
     height: 100%;
     background: rgba(0,0,0,0.7);
-    z-index: 9999;
+    z-index: 2000;
     align-items: center;
     justify-content: center;
     backdrop-filter: blur(5px);
@@ -1056,6 +1084,17 @@ footer strong {
     }
 }
 
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
 .fade-in-up {
     animation: fadeInUp 0.6s ease-out;
 }
@@ -1094,7 +1133,7 @@ footer strong {
     }
 }
 
-/* Tablet và Mobile Navigation - ĐÃ SỬA HOÀN TOÀN */
+/* Tablet và Mobile Navigation */
 @media (max-width: 768px) {
     .header-bottom {
         display: flex;
@@ -1105,7 +1144,9 @@ footer strong {
     }
     
     .mobile-menu-toggle {
-        display: block;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
     
     /* Mobile menu slide từ bên PHẢI */
@@ -1127,9 +1168,20 @@ footer strong {
         animation: slideInRight 0.3s ease-out;
     }
     
+    /* Hiển thị nút đóng khi menu active - NÚT X NẰM TRONG NAVBAR */
+    .main-nav.active .mobile-menu-close {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    /* Ẩn nút menu toggle khi menu đang mở */
+    .main-nav.active ~ .mobile-menu-toggle {
+        display: none;
+    }
+    
     .main-nav ul {
         flex-direction: column;
-        padding: 80px 1rem 2rem;
+        padding: 80px 1rem 2rem; /* TĂNG PADDING TOP ĐỂ TRÁNH CHE NÚT X */
         gap: 0;
     }
     
@@ -1155,53 +1207,35 @@ footer strong {
         transform: none;
     }
     
-    /* Mobile dropdown styles - HIỂN THỊ ĐÚNG VỊ TRÍ DƯỚI NÚT */
+    /* Mobile dropdown styles - KHÔNG DÙNG OVERLAY ĐEN */
     .user-dropdown-content,
     .booking-dropdown-content {
-        position: fixed;
-        top: auto;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        width: 100%;
+        position: absolute !important;
+        top: 100% !important;
+        bottom: auto !important;
+        left: auto !important;
+        right: 0 !important;
+        width: 200px !important;
         max-width: none;
-        border-radius: 15px 15px 0 0;
-        margin-top: 0;
-        transform: translateY(100%);
-        z-index: 1004;
+        border-radius: 12px;
+        margin-top: 5px;
+        transform: none !important;
+        z-index: 1004; /* CAO HƠN NÚT MENU TOGGLE (1002) */
         background: white;
-        box-shadow: 0 -5px 20px rgba(0,0,0,0.3);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        display: none;
     }
-    
+
+    /* Khi active thì hiện ra */
     .user-dropdown.active .user-dropdown-content,
     .booking-dropdown.active .booking-dropdown-content {
-        transform: translateY(0);
-        animation: slideInUp 0.3s ease-out;
-    }
-    
-    @keyframes slideInUp {
-        from {
-            transform: translateY(100%);
-        }
-        to {
-            transform: translateY(0);
-        }
-    }
-    
-    /* Overlay cho mobile dropdown */
-    .dropdown-overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.5);
-        z-index: 1003;
-    }
-    
-    .dropdown-overlay.active {
         display: block;
+        animation: dropdownFadeIn 0.3s ease;
+    }
+    
+    /* XÓA OVERLAY ĐEN CHO DROPDOWN */
+    .dropdown-overlay {
+        display: none !important;
     }
     
     .header-top {
@@ -1366,5 +1400,185 @@ footer strong {
     
     .modal-icon i {
         font-size: 1.1rem;
+    }
+}
+
+/* Đảm bảo nút menu toggle hiển thị đúng */
+@media (min-width: 769px) {
+    .mobile-menu-toggle {
+        display: none !important;
+    }
+    
+    .mobile-menu-close {
+        display: none !important;
+    }
+}
+
+/* ===== MODAL ĐĂNG XUẤT ===== */
+.logout-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 2000; /* CAO NHẤT */
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(5px);
+}
+
+.logout-modal.active {
+    display: flex;
+    animation: modalFadeIn 0.3s ease;
+}
+
+.logout-modal-content {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    width: 90%;
+    max-width: 450px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    position: relative;
+    border: 3px solid #ffe0b2;
+    text-align: center;
+}
+
+.logout-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #ffe0b2;
+}
+
+.logout-modal-header h3 {
+    color: #d32f2f;
+    font-size: 1.5rem;
+    font-weight: 900;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.logout-modal-close {
+    background: #ffe0b2;
+    border: none;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    color: #d32f2f;
+    font-size: 1.1rem;
+}
+
+.logout-modal-close:hover {
+    background: #d32f2f;
+    color: white;
+    transform: rotate(90deg);
+}
+
+.logout-modal-body {
+    margin-bottom: 2rem;
+}
+
+.logout-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #d32f2f, #f57c00);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-size: 2.5rem;
+    color: white;
+}
+
+.logout-modal-body p {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #333;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.logout-modal-footer {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.logout-modal-footer .btn {
+    padding: 12px 25px;
+    font-size: 1rem;
+    min-width: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 25px;
+    font-weight: 900;
+    transition: all 0.3s ease;
+}
+
+.logout-modal-footer .btn-secondary {
+    background: #f5f5f5;
+    color: #666;
+    border: 2px solid #ddd;
+}
+
+.logout-modal-footer .btn-secondary:hover {
+    background: #e0e0e0;
+    transform: translateY(-2px);
+}
+
+.logout-modal-footer .btn-primary {
+    background: #d32f2f;
+    color: white;
+    border: 2px solid #d32f2f;
+}
+
+.logout-modal-footer .btn-primary:hover {
+    background: #b71c1c;
+    border-color: #b71c1c;
+    transform: translateY(-2px);
+}
+
+/* RESPONSIVE MODAL */
+@media (max-width: 768px) {
+    .logout-modal-content {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+    
+    .logout-modal-header h3 {
+        font-size: 1.3rem;
+    }
+    
+    .logout-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 2rem;
+    }
+    
+    .logout-modal-body p {
+        font-size: 1.1rem;
+    }
+    
+    .logout-modal-footer {
+        flex-direction: column;
+    }
+    
+    .logout-modal-footer .btn {
+        width: 100%;
     }
 }

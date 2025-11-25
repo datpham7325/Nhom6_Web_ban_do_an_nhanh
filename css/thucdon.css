@@ -65,7 +65,7 @@ body {
 }
 
 .item-image {
-    height: 200px;
+    height: 300px;
     overflow: hidden;
     position: relative;
 }
@@ -209,8 +209,8 @@ body {
 }
 
 .modal-image img {
-    width: 100%;
-    height: 100%;
+    width: 90%;
+    height: 90%;
     object-fit: cover;
 }
 
@@ -753,7 +753,7 @@ body {
     transform: scale(1.1);
 }
 
-.cart-count {
+.cart-toggle .cart-count {
     position: absolute;
     top: -5px;
     right: -5px;

@@ -618,3 +618,31 @@ UNION ALL SELECT 'DatBan', COUNT(*) FROM DatBan
 UNION ALL SELECT 'DatSuKien', COUNT(*) FROM DatSuKien
 UNION ALL SELECT 'ThongBao', COUNT(*) FROM ThongBao
 UNION ALL SELECT 'UserThongBao', COUNT(*) FROM UserThongBao;
+
+
+-- --------------------------------------------------------
+-- BỔ SUNG: THÊM LOẠI MÓN ĂN VÀ 4 COMBO KHUYẾN MÃI
+-- --------------------------------------------------------
+
+-- 1. Thêm loại món ăn mới là "Combo"
+-- (Tiếp theo các loại cũ, ID này sẽ là 7)
+INSERT INTO LoaiMonAn (TenLoai) VALUES ('Combo');
+
+-- 2. Thêm 4 món ăn Combo vào bảng MonAn
+-- MaLoai = 7 (là loại Combo vừa tạo ở trên)
+-- MaMonAn sẽ tự động tăng tiếp theo (dự kiến là 47, 48, 49, 50)
+INSERT INTO MonAn (TenMonAn, HinhAnh, MoTa, MaLoai) VALUES
+('COMBO KHUYẾN MÃI 1', 'khuyenmai/khuyenmai1.jpg', 'Combo tiết kiệm đặc biệt gồm gà giòn và nước ngọt, giảm giá cực sốc.', 7),
+('COMBO KHUYẾN MÃI 2', 'khuyenmai/khuyenmai2.jpg', 'Phần ăn đầy đủ dinh dưỡng, hương vị tuyệt hảo dành cho 1 người.', 7),
+('COMBO KHUYẾN MÃI 3', 'khuyenmai/khuyenmai3.jpg', 'Sự kết hợp hoàn hảo giữa các món best-seller với mức giá ưu đãi.', 7),
+('COMBO KHUYẾN MÃI 4', 'khuyenmai/khuyenmai4.jpg', 'Bữa tiệc thịnh soạn với đầy đủ món ăn và tráng miệng.', 7);
+
+-- 3. Thêm giá và kích thước cho 4 món vừa tạo vào bảng BienTheMonAn
+-- MaSize = 1 (Kích thước Vừa - theo yêu cầu)
+-- MaMonAn: 47, 48, 49, 50 (tương ứng với 4 món trên)
+-- Đơn giá: Giả định các mức giá khuyến mãi
+INSERT INTO BienTheMonAn (MaMonAn, MaSize, DonGia) VALUES
+(47, 1, 79000),   -- Giá cho Combo 1
+(48, 1, 89000),   -- Giá cho Combo 2
+(49, 1, 99000),   -- Giá cho Combo 3
+(50, 1, 109000);  -- Giá cho Combo 4

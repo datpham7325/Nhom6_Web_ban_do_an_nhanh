@@ -1,0 +1,251 @@
+/* ====================================================== */
+/* CẤU TRÚC CHUNG */
+/* ====================================================== */
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    margin: 0;
+    min-height: 100vh;
+    font-family: 'Nunito', sans-serif;
+    margin-top: 20px;
+    background-color: #fff;
+}
+
+h2 {
+    color: #d32f2f; /* Tiêu đề màu Đỏ */
+    margin-left: 5%;
+    text-transform: uppercase;
+    margin-bottom: 15px;
+}
+
+/* ====================================================== */
+/* FORM 1: BẢNG THÔNG TIN (VIEW) */
+/* ====================================================== */
+.form1 {
+    width: 90%;
+    margin-bottom: 20px;
+}
+
+.form1 table {
+    border-collapse: collapse;
+    table-layout: fixed;
+    width: 100%;
+    /* Đổ bóng cho bảng */
+    box-shadow: 0 0 10px rgba(211, 47, 47, 0.15);
+}
+
+.form1 .tieude td, .noidung td {
+    border: 2px solid #f57c00; /* Viền bảng màu CAM */
+    text-align: center;
+    vertical-align: middle;
+    height: 45px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    padding: 2px 6px;
+    color: #333;
+}
+
+/* Dòng tiêu đề bảng */
+.tieude td {
+    background-color: rgba(211, 47, 47, 0.1); /* Nền Đỏ nhạt */
+    color: #d32f2f; /* Chữ Đỏ */
+    font-weight: 900;
+}
+
+/* Dòng nội dung */
+.noidung td {
+    background-color: #fff;
+}
+
+/* ====================================================== */
+/* FORM 2: FORM CHỈNH SỬA (EDIT) */
+/* ====================================================== */
+.form2 {
+    width: 60%; /* Tăng độ rộng lên chút cho thoáng */
+    margin-top: 10px;
+    padding: 20px;
+    /* Khung bao quanh form */
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    margin-bottom: 50px;
+}
+
+.form2 table {
+    border-collapse: separate;
+    border-spacing: 0 15px; /* Khoảng cách giữa các dòng nhập liệu */
+    width: 100%;
+}
+
+/* Nhãn (Label) */
+.form2 .tieude {
+    font-weight: bold;
+    width: 25%;
+    color: black; /* Nhãn màu Đỏ */
+    vertical-align: top;
+    padding-top: 8px;
+}
+
+.form2 .noidung {
+    width: 75%;
+    vertical-align: middle;
+}
+
+/* Định dạng chung cho Input, Select, Textarea */
+.form2 input[type="text"], 
+.form2 textarea, 
+.form2 select {
+    width: 95%;
+    padding: 8px 10px;
+    border: 1px solid #f57c00; /* Viền Cam */
+    border-radius: 4px;
+    outline: none;
+    font-family: 'Nunito', sans-serif;
+    transition: 0.3s;
+    font-size: 14px;
+}
+
+/* Hiệu ứng khi focus */
+.form2 input[type="text"]:focus, 
+.form2 textarea:focus, 
+.form2 select:focus {
+    box-shadow: 0 0 5px rgba(245, 124, 0, 0.5); /* Bóng Cam */
+    border-color: #e65100;
+}
+
+.form2 .noidung textarea {
+    height: 80px;
+    resize: vertical;
+}
+
+/* Trường hợp input readonly (Mã món) */
+input[readonly] {
+    background-color: #f0f0f0;
+    color: #777;
+    border-color: #ccc !important;
+}
+
+/* ====================================================== */
+/* CÁC NÚT PHỤ (THÊM LOẠI/SIZE, XÓA LOẠI/SIZE) */
+/* ====================================================== */
+
+.dropdownsize select {
+    width: 30%;
+}
+
+/* Nút xóa nhỏ bên cạnh select */
+.dropdownsize input[type="submit"] {
+    width: 20%;
+    height: 38px;
+    font-weight: bold;
+    background-color: #d32f2f; /* Đỏ */
+    color: #fff;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-left: 5px;
+}
+.dropdownsize input[type="submit"]:hover {
+    background-color: #b71c1c;
+}
+
+/* Ô nhập loại/size mới */
+.loaimoi, .sizemoi {
+    width: 27% !important;
+}
+
+/* Nút thêm nhỏ bên cạnh ô nhập */
+.btnloaimoi, .btnsizemoi {
+    width: 20%;
+    height: 38px;
+    font-weight: bold;
+    background-color: #f57c00; /* Cam */
+    color: #fff;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-left: 5px;
+}
+.btnloaimoi:hover, .btnsizemoi:hover {
+    background-color: #e65100;
+}
+
+/* ====================================================== */
+/* CÁC NÚT CHỨC NĂNG CHÍNH (CUỐI FORM) */
+/* ====================================================== */
+.tdbtn {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid #eee; /* Đường kẻ nhẹ phân cách */
+}
+
+.tdbtn input {
+    width: 130px;
+    height: 40px;
+    font-weight: bold;
+    border-radius: 5px;
+    border: none;
+    color: #fff;
+    margin: 0 8px;
+    cursor: pointer;
+    font-size: 15px;
+    transition: 0.3s;
+}
+
+/* Nút Chỉnh Sửa - XANH LÁ (Màu ngữ nghĩa) */
+.btnEdit {
+    background-color: #2e7d32;
+}
+.btnEdit:hover {
+    background-color: #1b5e20;
+    box-shadow: 0 3px 8px rgba(46, 125, 50, 0.4);
+}
+
+/* Nút Xóa - ĐỎ (Màu cảnh báo) */
+.btnDelete {
+    background-color: #d32f2f;
+}
+.btnDelete:hover {
+    background-color: #b71c1c;
+    box-shadow: 0 3px 8px rgba(211, 47, 47, 0.4);
+}
+
+/* Nút Quay Lại - CAM (Đồng bộ Theme) */
+.btnBack {
+    background-color: #f57c00;
+}
+.btnBack:hover {
+    background-color: #e65100;
+    box-shadow: 0 3px 8px rgba(245, 124, 0, 0.4);
+}
+
+/* ====================================================== */
+/* THÔNG BÁO */
+/* ====================================================== */
+.success-message {
+    color: #2e7d32;
+    background-color: #e8f5e9;
+    border: 1px solid #2e7d32;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 10px;
+    width: 60%;
+}
+
+.error-message {
+    color: #c62828;
+    background-color: #ffebee;
+    border: 1px solid #c62828;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 10px;
+    width: 60%;
+}

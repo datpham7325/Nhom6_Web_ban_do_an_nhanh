@@ -47,7 +47,6 @@ function initScrollAnimations() {
 function initInteractiveElements() {
     initSectionHighlights();
     initQuickNavigation();
-    initPrintButton();
 }
 
 // Hiệu ứng highlight khi hover section
@@ -199,48 +198,6 @@ function addQuickNavStyles() {
     const styleSheet = document.createElement('style');
     styleSheet.textContent = styles;
     document.head.appendChild(styleSheet);
-}
-
-// Nút in trang
-function initPrintButton() {
-    const printButton = document.createElement('button');
-    printButton.className = 'btn-print';
-    printButton.innerHTML = '🖨️ In trang này';
-    printButton.addEventListener('click', printPage);
-    
-    // Thêm nút vào trang
-    const pageHeader = document.querySelector('.page-header');
-    if (pageHeader) {
-        pageHeader.style.position = 'relative';
-        printButton.style.position = 'absolute';
-        printButton.style.top = '20px';
-        printButton.style.right = '20px';
-        printButton.style.padding = '10px 15px';
-        printButton.style.background = 'rgba(255,255,255,0.2)';
-        printButton.style.color = 'white';
-        printButton.style.border = '1px solid rgba(255,255,255,0.3)';
-        printButton.style.borderRadius = '6px';
-        printButton.style.cursor = 'pointer';
-        printButton.style.backdropFilter = 'blur(10px)';
-        printButton.style.transition = 'all 0.3s ease';
-        
-        printButton.addEventListener('mouseenter', function() {
-            this.style.background = 'rgba(255,255,255,0.3)';
-            this.style.transform = 'translateY(-2px)';
-        });
-        
-        printButton.addEventListener('mouseleave', function() {
-            this.style.background = 'rgba(255,255,255,0.2)';
-            this.style.transform = 'translateY(0)';
-        });
-        
-        pageHeader.appendChild(printButton);
-    }
-}
-
-// Hàm in trang
-function printPage() {
-    window.print();
 }
 
 // Thêm CSS animations
