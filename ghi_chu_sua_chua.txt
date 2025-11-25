@@ -1,0 +1,38 @@
+Sửa lỗi xem chi tiết trong phần tìm kiếm. Trong mục thực đơn lúc bình thường vẫn hiển thị được nhưng khi tìm kiếm món ăn phần xem chi tiết bị lỗi. ✅
+
+Fix ảnh ở trang chủ, Giới thiệu ✅
+
+Chỉnh màu tiêu đề giỏ hàng✅
+
+Chỉnh lại reponsive phần tài khoản khi thu nhỏ menu bị nhảy xuống dưới✅
+
+Dropdown Đặt chỗ✅
+
+ngôi sao trong đánh giá✅
+
+Fix giỏ hàng trống như bên đơn hàng✅
+
+FIx ảnh hiển thị trong khuyến mãi, fix thêm giỏ hàng combo (Thêm combo vào database vì combo hiển thị bằng code không có trong database)✅
+
+Lúc đăng ký xong tự động chuyển qua đăng nhập✅ 
+
+Chỉnh lại hash pass đồng bộ mật khẩu ✅
+
+Kiểm tra mật khẩu đúng yêu cầu ✅ Có bổ sung thêm so khớp mật khẩu
+
+
+/////////////////////////////////////////////////////////////////////////////////
+
+NỘI DUNG ĐÃ BỔ SUNG
+
+database thêm sql combo ở dưới cùng, nếu có xung đột thì bỏ nó vào PHẦN 14: KIỂM TRA DỮ LIỆU để kiểm tra chung
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+PHẦN CHƯA LÀM
+
+Làm thêm: tạo khuyến mãi, thêm vào database
+
+Tách css: trang giới thiệu với dò lại còn sót trang nào không

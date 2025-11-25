@@ -1,61 +1,53 @@
-<?php
-include_once "includes/header.php";
-include_once "function/functions.php";
-
-// Kết nối database
-include_once("includes/myenv.php");
-$conn = mysqli_connect($db_host, $db_user, $db_password, $db_db,$db_port);
-
-// Xử lý truy vấn món ăn theo danh mục
-if(isset($_GET['maloaimonan'])) {
-    $maLoai = $_GET['maloaimonan'];
-    if($maLoai == 0) {
-        // Lấy tất cả món ăn không lọc theo loại
-        $strSQL = "SELECT ma.*, bto.MaBienThe, bto.DonGia, bto.MaSize, kt.TenSize 
-                  FROM monan ma 
-                  JOIN bienthemonan bto ON ma.MaMonAn = bto.MaMonAn 
-                  JOIN kichthuoc kt ON bto.MaSize = kt.MaSize";
-    } else {
-        // Lấy món ăn theo loại cụ thể
-        $strSQL = "SELECT ma.*, bto.MaBienThe, bto.DonGia, bto.MaSize, kt.TenSize 
-                  FROM monan ma 
-                  JOIN bienthemonan bto ON ma.MaMonAn = bto.MaMonAn 
-                  JOIN kichthuoc kt ON bto.MaSize = kt.MaSize
-                  WHERE ma.MaLoai = '$maLoai'";
-    }
-} else {
-    // Mặc định lấy tất cả món ăn
-    $maLoai = 0;
-    $strSQL = "SELECT ma.*, bto.MaBienThe, bto.DonGia, bto.MaSize, kt.TenSize 
-              FROM monan ma 
-              JOIN bienthemonan bto ON ma.MaMonAn = bto.MaMonAn 
-              JOIN kichthuoc kt ON bto.MaSize = kt.MaSize";
-}
-
-// Thực thi truy vấn
-$result = mysqli_query($conn, $strSQL);
-?>
+<?php include_once "includes/header.php"; ?>
 
 <div class="container">
-    <div class="menu-banner">
-        <div class="banner-content">
-            <h1 class="banner-title">Thực Đơn Jollibee</h1>
-            <p class="banner-subtitle">Hương vị hạnh phúc - Trọn vẹn yêu thương</p>
-        </div>
+    <div class="page-header">
+        <h1>TÌM KIẾM MÓN ĂN</h1>
+        <p>Khám phá hương vị yêu thích của bạn!</p>
     </div>
 
     <div class="content-container">
-        <div class="menu-grid">
-            <?php
-            // Kiểm tra có món ăn nào không
+
+        <?php
+        // Xử lý tìm kiếm khi có keyword từ form
+        if(isset($_GET['keyword'])) {
+            // Lấy và làm sạch dữ liệu từ form
+            $keyword = mysqli_real_escape_string($conn, $_GET['keyword']);
+            $maloai = $_GET['maloai'] ?? 0;
+            $min_price = $_GET['min_price'] ?? 0;
+            $max_price = $_GET['max_price'] ?? 999999999;
+            
+            // Xây dựng câu truy vấn SQL tìm kiếm
+            $sql = "SELECT m.*, b.MaBienThe, b.DonGia, b.MaSize, k.TenSize
+                    FROM MonAn m 
+                    JOIN BienTheMonAn b ON m.MaMonAn = b.MaMonAn 
+                    JOIN KichThuoc k ON b.MaSize = k.MaSize
+                    WHERE m.TenMonAn LIKE '%$keyword%'";
+            
+            // Thêm điều kiện lọc theo loại món nếu có
+            if($maloai > 0) {
+                $sql .= " AND m.MaLoai = $maloai";
+            }
+            
+            // Thêm điều kiện lọc theo khoảng giá
+            $sql .= " AND b.DonGia BETWEEN $min_price AND $max_price";
+            
+            // Thực thi truy vấn
+            $result = mysqli_query($conn, $sql);
+            
+            // Kiểm tra và hiển thị kết quả
             if(mysqli_num_rows($result) > 0) {
-                // Lặp qua từng món ăn và hiển thị
+                echo '<div class="menu-grid">';
+                
+                // Lặp qua từng kết quả tìm kiếm
                 while($row = mysqli_fetch_assoc($result)) {
                     $anh = "img/". $row['HinhAnh'];
                     $mbt = $row['MaBienThe'];
-                    // Xử lý tên món: với loại 6 (có thể là đồ uống) thì thêm tên size
+                    
+                    // Xử lý tên món
                     $tenMon = $row['MaLoai'] == 6 ? $row['TenMonAn'] . " " . $row['TenSize'] : $row['TenMonAn'];
                     $gia = number_format($row['DonGia'], 0, ",", ".");
+                    
                     ?>
                     <div class="menu-item" onclick="openModal('<?php echo $mbt; ?>', '<?php echo htmlspecialchars($tenMon); ?>', '<?php echo $anh; ?>', <?php echo $row['DonGia']; ?>, '<?php echo htmlspecialchars($row['MoTa'] ?? ''); ?>')">
                         <div class="item-image">
@@ -73,16 +65,17 @@ $result = mysqli_query($conn, $strSQL);
                     </div>
                     <?php
                 }
+                echo '</div>'; 
             } else {
-                // Hiển thị khi không có món ăn
-                echo "<div class='no-items'>
-                        <div class='no-items-icon'>🍴</div>
-                        <h3>Không có món ăn</h3>
-                        <p>Hiện không có món ăn nào trong danh mục này.</p>
-                      </div>";
+                // Hiển thị thông báo khi không tìm thấy kết quả
+                echo '<div class="no-items">
+                        <div class="no-items-icon">🔍</div>
+                        <h3>Không tìm thấy món ăn</h3>
+                        <p>Rất tiếc, không có món nào phù hợp với từ khóa của bạn.</p>
+                      </div>';
             }
-            ?>
-        </div>
+        }
+        ?>
     </div>
 </div>
 
@@ -99,7 +92,8 @@ $result = mysqli_query($conn, $strSQL);
                     <div class="description-container">
                         <p id="modalDescription" class="modal-description"></p>
                     </div>
-                </div>
+                    
+                    </div>
 
                 <div class="order-section">
                     <div class="quantity-selector">
@@ -110,12 +104,10 @@ $result = mysqli_query($conn, $strSQL);
                             <button type="button" class="btn-quantity plus" onclick="increaseQuantity()">+</button>
                         </div>
                     </div>
-                    
                     <div class="price-section">
                         <span class="total-label">Thành tiền:</span>
                         <span id="modalTotalPrice" class="total-price">0 VND</span>
                     </div>
-
                     <button class="btn-add-to-cart-modal" onclick="addToCartFromModal()">
                         🛒 Thêm vào giỏ hàng
                     </button>
@@ -147,8 +139,7 @@ $result = mysqli_query($conn, $strSQL);
         <button class="btn-close-cart" onclick="closeCart()">×</button>
     </div>
     <div class="cart-content">
-        <div id="cartItems" class="cart-items">
-            </div>
+        <div id="cartItems" class="cart-items"></div>
         <div class="cart-footer">
             <div class="cart-total">
                 <span>Tổng cộng:</span>
