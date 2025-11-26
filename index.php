@@ -21,22 +21,22 @@
         <div class="menu-loai">
             <!-- Danh mục 1: Gà giòn vui vẻ -->
             <a href="ThucDon.php?maloaimonan=1">
-                <img src="img/gagionvuive/gagionvuive1.jpg" alt="Gà giòn vui vẻ">
+                <img src="img/gagionvuive1.jpg" alt="Gà giòn vui vẻ">
                 <p style="color: #5d4037;">GÀ GIÒN VUI VẺ</p>
             </a>
             <!-- Danh mục 2: Mì Ý Jolly -->
             <a href="ThucDon.php?maloaimonan=2">
-                <img src="img/miy/miy1.jpg" alt="Mì Ý Jolly">
+                <img src="img/miy1.jpg" alt="Mì Ý Jolly">
                 <p style="color: #5d4037;">MÌ Ý JOLLY</p>
             </a>
             <!-- Danh mục 3: Burger & Cơm -->
             <a href="ThucDon.php?maloaimonan=4">
-                <img src="img/burger/burger1.jpg" alt="Burger/Cơm">
+                <img src="img/burger1.jpg" alt="Burger/Cơm">
                 <p style="color: #5d4037;">BURGER & CƠM</p>
             </a>
             <!-- Danh mục 4: Tráng miệng -->
             <a href="ThucDon.php?maloaimonan=5">
-                <img src="img/trangmieng/trangmieng1.webp" alt="Tráng miệng">
+                <img src="img/trangmieng1.jpg" alt="Tráng miệng">
                 <p style="color: #5d4037;">TRÁNG MIỆNG</p>
             </a>
         </div>

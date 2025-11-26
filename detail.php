@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="css/detail.css">
-    <!-- Thêm font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Mở kết nối -->
+    <?php include_once "includes/header2.php"; ?>
+
     <?php
         $hostname = "localhost";
         $username = "root";
@@ -50,19 +50,32 @@
     ?>
 
 
-<!-- ///////////////////////////////////////////////////////////////////////////////////////////////// -->
-    <!-- Cách nút thao tác -->
-    <?php 
-        if( isset($_GET['btnedit']) )
+<?php 
+        // SỬA: Đổi từ $_GET sang $_POST và thêm logic upload ảnh
+        if( isset($_POST['btnedit']) )
         {
-            $maBienThe = $_GET['mabienthe'];
-            $maLoai = $_GET['loaimonan'];
-            $tenMonAn = $_GET['tenmonan'];
-            $hinhAnh = $_GET['hinhanh'];
-            $tenLoai = $_GET['loaimonan'];
-            $maSize = $_GET['size'];
-            $donGia = $_GET['gia'];
-            $moTa = $_GET['mota'];
+            $maBienThe = $_POST['mabienthe'];
+            $maLoai = $_POST['loaimonan'];
+            $tenMonAn = $_POST['tenmonan'];
+            
+            // SỬA: Logic xử lý ảnh tương tự insert.php
+            // Lấy ảnh cũ mặc định
+            $hinhAnh = $_POST['hinhanh_cu'];
+            
+            // Kiểm tra nếu có upload ảnh mới
+            if (isset($_FILES['hinhanh']) && $_FILES['hinhanh']['error'] == 0) 
+            {
+                $target_dir = "img/";
+                $target_file = $target_dir . basename($_FILES["hinhanh"]["name"]);
+                if (move_uploaded_file($_FILES["hinhanh"]["tmp_name"], $target_file)) {
+                    $hinhAnh = basename($_FILES["hinhanh"]["name"]);
+                }
+            }
+
+            $tenLoai = $_POST['loaimonan']; // Lưu ý: biến này có thể cần xử lý lại nếu muốn lấy tên hiển thị, nhưng giữ nguyên theo code gốc
+            $maSize = $_POST['size'];
+            $donGia = $_POST['gia'];
+            $moTa = $_POST['mota'];
 
             $strSQL_Update_MonAn = "UPDATE monan 
                                 SET TenMonAn='$tenMonAn',
@@ -106,22 +119,22 @@
                 echo "<p id='message' class='error-message'>Chỉnh sửa thất bại. Vui lòng thử lại.</p>";
             }
         }
-        else if( isset($_GET['btndelete']) )
+        // SỬA: Đổi sang $_REQUEST hoặc $_POST vì form đã chuyển sang POST
+        else if( isset($_REQUEST['btndelete']) )
         {
+            $maBienThe = $_REQUEST['mabienthe'];
             header("Location: delete.php?mabienthe=$maBienThe");
         }
-        else if( isset($_GET['btnback']) )
+        else if( isset($_REQUEST['btnback']) )
         {
-            $page = (int)$_GET['page'];
+            $page = (int)$_REQUEST['page'];
             header("Location: home.php?page=$page");
         }
     ?>
 
 
 
-<!-- /////////////////////////////////////////////////////////////////////////////////////////// -->
-    <!-- Hàm xử lý -->
-    <?php 
+<?php 
         // Chuẩn hóa mã
         function ChuanHoaMa($mma)
         {
@@ -170,11 +183,11 @@
         }
 
         //Xử lý nút thêm size mới
-        if( isset($_GET['tensize']) )
+        if( isset($_REQUEST['tensize']) ) // Dùng REQUEST để bắt cả GET/POST
         {
-            if(isset($_GET['tensize']) && ($_GET['tensize']) != "")
+            if(isset($_REQUEST['tensize']) && ($_REQUEST['tensize']) != "")
             {
-                $tenSize = $_GET['tensize'];
+                $tenSize = $_REQUEST['tensize'];
 
                 $strSQL_tenSize = "INSERT INTO kichthuoc(TenSize) VALUES('$tenSize')";
                 $result_Insert_tenSize = mysqli_query($conn, $strSQL_tenSize);
@@ -188,9 +201,9 @@
         }
 
         // Nút xóa size
-        if(isset($_GET['btnDeleteSize'])) 
+        if(isset($_REQUEST['btnDeleteSize'])) // Dùng REQUEST
         {
-            $sizeToDelete = $_GET['size'];
+            $sizeToDelete = $_REQUEST['size'];
 
             // Kiểm tra xem size có đang được sử dụng trong BienTheMonAn không
             $checkSQL = "SELECT COUNT(*) AS cnt FROM BienTheMonAn WHERE MaSize = '$sizeToDelete'";
@@ -258,11 +271,11 @@
         }
 
         // Nút thêm loại món ăn
-        if( isset($_GET['tenloai']) )
+        if( isset($_REQUEST['tenloai']) ) // Dùng REQUEST
         {
-            if($_GET['tenloai'] != "")
+            if($_REQUEST['tenloai'] != "")
             {
-                $tenLoaiMoi = $_GET['tenloai'];
+                $tenLoaiMoi = $_REQUEST['tenloai'];
 
                 $sqlThemLoai = "INSERT INTO loaimonan(TenLoai) VALUES('$tenLoaiMoi')";
                 $resLoai = mysqli_query($conn, $sqlThemLoai);
@@ -276,9 +289,9 @@
         }
 
         // Nút xóa loại món ăn
-        if(isset($_GET['btnDeleteLoai']))
+        if(isset($_REQUEST['btnDeleteLoai'])) // Dùng REQUEST
         {
-            $loaiToDelete = $_GET['loaimonan'];
+            $loaiToDelete = $_REQUEST['loaimonan'];
 
             // Kiểm tra xem loại có đang được dùng
             $checkSQL = "SELECT COUNT(*) AS cnt FROM monan WHERE MaLoai = '$loaiToDelete'";
@@ -309,8 +322,7 @@
 
     ?>
 
-<!-- ////////////////////////////////////////////////////////////////////////////////////////// -->
-    <form class="form1">
+<form class="form1">
         <table>
             <tr>
                 <td colspan="4">
@@ -332,7 +344,7 @@
                     echo "<td>" . ChuanHoaMa($maBienThe) . "</td>";
                     echo "<td>" . $tenMonAn . "</td>";
                             
-                    $anh = "../img/". $hinhAnh;
+                    $anh = "img/". $hinhAnh;
                     echo "<td>" . "<img src='$anh' width='50px' height='50px'>" . "</td>";
                             
                     echo "<td>" . $tenLoai . "</td>";
@@ -346,8 +358,7 @@
 
 
 
-<!-- /////////////////////////////////////////////////////////////////////////////////////////// -->
-    <form class="form2">
+<form class="form2" method="post" enctype="multipart/form-data">
         <input type="hidden" name="page" value="<?php echo isset($_GET['page']) ? (int)$_GET['page'] : 1; ?>">
         <table>
 
@@ -370,8 +381,10 @@
             <tr>
                 <td class="tieude">Hình ảnh:</td>
                 <td class="noidung">
-                    <input type="text" name="hinhanh"
-                        value="<?php echo isset($hinhAnh) ? $hinhAnh : '' ?>">
+                    <input type="file" name="hinhanh" accept="image/*">
+                    <input type="hidden" name="hinhanh_cu" value="<?php echo isset($hinhAnh) ? $hinhAnh : '' ?>">
+                    <br>
+                    <span style="font-size: 0.8em;">(Hiện tại: <?php echo isset($hinhAnh) ? $hinhAnh : '' ?>)</span>
                 </td>
             </tr>
 
@@ -460,7 +473,6 @@
     
 </body>
 
-<!-- ////////////////////////////////////////////////////////////////////////////////////////// -->
 <script>
     // Ẩn thông báo sau 3 giây
     setTimeout(function() {

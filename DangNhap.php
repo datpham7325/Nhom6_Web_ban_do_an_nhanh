@@ -1,3 +1,24 @@
+<?php
+  session_start(); // Bắt đầu session để lưu trạng thái đăng nhập
+  
+  // --- XỬ LÝ ĐĂNG XUẤT ---
+  if (isset($_GET['logout']) && $_GET['logout'] == 'true') {
+      // 1. Xóa Session
+      session_unset();
+      session_destroy();
+      
+      // 2. Xóa Cookie (Set thời gian về quá khứ)
+      if (isset($_COOKIE['user_login'])) {
+          setcookie('user_login', '', time() - 3600, "/");
+      }
+      
+      // 3. Load lại trang để tránh gửi lại form
+      header("Location: DangNhap.php");
+      exit();
+  }
+  // ------------------------------
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -11,7 +32,7 @@
 <body>
 
   <?php
-  session_start(); // Bắt đầu session để lưu trạng thái đăng nhập
+  
 
   $loi = "";
   $email = ""; // Khai báo trước để tránh warning khi chưa có dữ liệu
@@ -63,6 +84,13 @@
               $_SESSION['Email'] = $db_email;      // Email user
               $_SESSION['QuyenHan'] = $quyenHan;   // Quyền hạn (admin/nhanvien/khachhang)
 
+              // --- TẠO COOKIE NẾU USER CHỌN "GHI NHỚ" ---
+              if (isset($_POST['remember'])) {
+                  // Lưu MaUser vào Cookie trong 30 ngày
+                  setcookie('user_login', $maUser, time() + (86400 * 30), "/");
+              }
+              // --------------------------------------------------
+
               // Chuyển hướng theo quyền hạn của user
               if ($quyenHan === 'admin') {
                 header("Location: home.php");      // Chuyển đến trang Admin
@@ -106,6 +134,14 @@
           <td>
             <!-- Trường nhập mật khẩu -->
             <input type="password" name="password" placeholder="Mật khẩu*" required>
+          </td>
+        </tr>
+        <tr>
+          <td class="remember-row">
+            <label class="remember-label">
+                <input type="checkbox" name="remember" value="1"> 
+                <span>Ghi nhớ đăng nhập</span>
+            </label>
           </td>
         </tr>
         <tr>

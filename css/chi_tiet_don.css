@@ -2,14 +2,29 @@
    TỔNG THỂ TRANG
    ============================ */
 
-/* Styles for chi_tiet_don.php — consistent with project detail/duyet styles */
+/* Styles for chi_tiet_don.php */
 body {
     font-family: 'Nunito', sans-serif;
     margin: 0;
-    padding: 20px 0 40px 0;
+    
+    /* SỬA LỖI TẠI ĐÂY */
+    padding: 0 0 40px 0; /* Bỏ padding-top 20px để Header dính sát lên trên cùng */
+    
     display: flex;
-    justify-content: center;
+    flex-direction: column; /* QUAN TRỌNG: Xếp Header lên trên, Nội dung xuống dưới */
+    align-items: center;    /* Căn giữa nội dung theo chiều ngang */
+    
     background-color: #fff;
+    min-height: 100vh; /* Đảm bảo body cao ít nhất bằng màn hình */
+}
+
+/* Thêm khoảng cách cho nội dung bên dưới Header để không bị dính sát quá */
+.table-container {
+    margin-top: 20px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 /* ============================

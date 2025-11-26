@@ -646,3 +646,19 @@ INSERT INTO BienTheMonAn (MaMonAn, MaSize, DonGia) VALUES
 (48, 1, 89000),   -- Giá cho Combo 2
 (49, 1, 99000),   -- Giá cho Combo 3
 (50, 1, 109000);  -- Giá cho Combo 4
+
+
+-- 1. Loại bỏ các tiền tố thư mục (folder/)
+UPDATE MonAn SET HinhAnh = REPLACE(HinhAnh, 'gagionvuive/', '');
+UPDATE MonAn SET HinhAnh = REPLACE(HinhAnh, 'miy/', '');
+UPDATE MonAn SET HinhAnh = REPLACE(HinhAnh, 'gasot/', '');
+UPDATE MonAn SET HinhAnh = REPLACE(HinhAnh, 'burger/', '');
+UPDATE MonAn SET HinhAnh = REPLACE(HinhAnh, 'trangmieng/', '');
+UPDATE MonAn SET HinhAnh = REPLACE(HinhAnh, 'nuoc/', '');
+UPDATE MonAn SET HinhAnh = REPLACE(HinhAnh, 'khuyenmai/', '');
+
+-- 2. Đổi tất cả đuôi .webp thành .jpg
+UPDATE MonAn SET HinhAnh = REPLACE(HinhAnh, '.webp', '.jpg');
+
+-- 3. (Phụ trợ) Đổi đuôi .png thành .jpg (nếu có) để đồng bộ tuyệt đối
+UPDATE MonAn SET HinhAnh = REPLACE(HinhAnh, '.png', '.jpg');

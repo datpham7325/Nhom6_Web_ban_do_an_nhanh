@@ -1,6 +1,45 @@
 <?php
 session_start();
 include_once("function/functions.php");
+include_once("includes/myenv.php");
+
+// --- [THÊM] TỰ ĐỘNG ĐĂNG NHẬP NẾU CÓ COOKIE ---
+// Nếu chưa có Session NHƯNG lại có Cookie 'user_login'
+if (!isset($_SESSION['loggedin']) && isset($_COOKIE['user_login'])) 
+{
+    
+    $maUserCookie = $_COOKIE['user_login'];
+    
+    // Kết nối database để lấy lại thông tin User
+    $conn_check = mysqli_connect($db_host, $db_user, $db_password, $db_db, $db_port);
+    
+    if ($conn_check) {
+        // Dùng Prepared Statement để bảo mật
+        $sql_check = "SELECT MaUser, Ho, Ten, Email, QuyenHan FROM Users WHERE MaUser = ?";
+        $stmt_check = mysqli_prepare($conn_check, $sql_check);
+        
+        if ($stmt_check) {
+            mysqli_stmt_bind_param($stmt_check, "i", $maUserCookie);
+            mysqli_stmt_execute($stmt_check);
+            $res_check = mysqli_stmt_get_result($stmt_check);
+            
+            if ($res_check && mysqli_num_rows($res_check) == 1) 
+            {
+                $row = mysqli_fetch_assoc($res_check);
+                
+                // TÁI TẠO SESSION
+                $_SESSION['loggedin'] = true;
+                $_SESSION['MaUser'] = $row['MaUser'];
+                $_SESSION['HoTen'] = $row['Ho'] . " " . $row['Ten'];
+                $_SESSION['Email'] = $row['Email'];
+                $_SESSION['QuyenHan'] = $row['QuyenHan'];
+            }
+            mysqli_stmt_close($stmt_check);
+        }
+        mysqli_close($conn_check);
+    }
+}
+// ----------------------------------------------
 
 // Xác định trang hiện tại và mã loại
 $current_page = basename($_SERVER['PHP_SELF']);
@@ -104,7 +143,7 @@ if (isset($_SESSION['loggedin']) && isset($_SESSION['MaUser'])) {
         <button class="mobile-menu-close" id="mobileMenuClose">
           <i class="fas fa-times"></i>
         </button>
-        
+
         <ul>
           <li><a href="index.php" class="<?php echo $current_page == 'index.php' ? 'active' : ''; ?>">
               <i class="fas fa-home"></i> TRANG CHỦ
@@ -149,6 +188,10 @@ if (isset($_SESSION['loggedin']) && isset($_SESSION['MaUser'])) {
           <li><a href="GioiThieu.php" class="<?php echo $current_page == 'GioiThieu.php' ? 'active' : ''; ?>">
               <i class="fas fa-info-circle"></i> GIỚI THIỆU
             </a></li>
+          <!-- Thêm vào phần main-nav ul, sau mục GIỚI THIỆU -->
+          <li><a href="BaiTap.php" class="<?php echo $current_page == 'BaiTap.php' ? 'active' : ''; ?>">
+              <i class="fas fa-book"></i> BÀI TẬP
+            </a></li>
         </ul>
       </nav>
     </div>
@@ -173,31 +216,31 @@ if (isset($_SESSION['loggedin']) && isset($_SESSION['MaUser'])) {
     <nav class="category-nav">
       <div class="menu-loai">
         <a href="ThucDon.php?maloaimonan=0" class="<?php echo $maLoai == 0 ? 'active' : ''; ?>">
-          <img src="img/gagionvuive/gagionvuive1.jpg" alt="Tổng hợp">
+          <img src="img/gagionvuive1.jpg" alt="Tổng hợp">
           <p>TỔNG HỢP</p>
         </a>
         <a href="ThucDon.php?maloaimonan=1" class="<?php echo $maLoai == 1 ? 'active' : ''; ?>">
-          <img src="img/gagionvuive/gagionvuive1.jpg" alt="Gà giòn vui vẻ">
+          <img src="img/gagionvuive1.jpg" alt="Gà giòn vui vẻ">
           <p>GÀ GIÒN VUI VẺ</p>
         </a>
         <a href="ThucDon.php?maloaimonan=2" class="<?php echo $maLoai == 2 ? 'active' : ''; ?>">
-          <img src="img/miy/miy1.jpg" alt="Mì Ý Jolly">
+          <img src="img/miy1.jpg" alt="Mì Ý Jolly">
           <p>MÌ Ý JOLLY</p>
         </a>
         <a href="ThucDon.php?maloaimonan=3" class="<?php echo $maLoai == 3 ? 'active' : ''; ?>">
-          <img src="img/gasot/gasot1.jpg" alt="Gà sốt cay">
+          <img src="img/gasot1.jpg" alt="Gà sốt cay">
           <p>GÀ SỐT</p>
         </a>
         <a href="ThucDon.php?maloaimonan=4" class="<?php echo $maLoai == 4 ? 'active' : ''; ?>">
-          <img src="img/burger/burger1.jpg" alt="Burger/Cơm">
+          <img src="img/burger1.jpg" alt="Burger/Cơm">
           <p>BURGER/CƠM</p>
         </a>
         <a href="ThucDon.php?maloaimonan=5" class="<?php echo $maLoai == 5 ? 'active' : ''; ?>">
-          <img src="img/trangmieng/trangmieng1.webp" alt="Tráng miệng">
+          <img src="img/trangmieng1.jpg" alt="Tráng miệng">
           <p>TRÁNG MIỆNG</p>
         </a>
         <a href="ThucDon.php?maloaimonan=6" class="<?php echo $maLoai == 6 ? 'active' : ''; ?>">
-          <img src="img/nuoc/nuoc1.webp" alt="Nước">
+          <img src="img/nuoc1.jpg" alt="Nước">
           <p>NƯỚC</p>
         </a>
       </div>
@@ -236,14 +279,14 @@ if (isset($_SESSION['loggedin']) && isset($_SESSION['MaUser'])) {
       <i class="fas fa-comments"></i>
       <div class="contact-notification">!</div>
     </div>
-    
+
     <!-- Contact Dropdown -->
     <div class="contact-dropdown">
       <div class="contact-dropdown-header">
         <h3>LIÊN HỆ NHANH</h3>
         <p>Chúng tôi luôn sẵn sàng hỗ trợ!</p>
       </div>
-      
+
       <div class="contact-dropdown-methods">
         <a href="tel:19001234" class="contact-dropdown-method">
           <div class="contact-dropdown-icon">
@@ -254,7 +297,7 @@ if (isset($_SESSION['loggedin']) && isset($_SESSION['MaUser'])) {
             <p>Hotline: <span>1900 1234</span></p>
           </div>
         </a>
-        
+
         <a href="https://zalo.me/0901234567" target="_blank" class="contact-dropdown-method">
           <div class="contact-dropdown-icon">
             <i class="fab fa-zalo"></i>
@@ -264,7 +307,7 @@ if (isset($_SESSION['loggedin']) && isset($_SESSION['MaUser'])) {
             <p>Chat ngay: <span>090 1234 567</span></p>
           </div>
         </a>
-        
+
         <a href="https://m.me/jollibeevietnam" target="_blank" class="contact-dropdown-method">
           <div class="contact-dropdown-icon">
             <i class="fab fa-facebook-messenger"></i>
@@ -274,7 +317,7 @@ if (isset($_SESSION['loggedin']) && isset($_SESSION['MaUser'])) {
             <p>Nhắn tin Facebook</p>
           </div>
         </a>
-        
+
         <a href="mailto:contact@jollibee.vn" class="contact-dropdown-method">
           <div class="contact-dropdown-icon">
             <i class="fas fa-envelope"></i>
@@ -284,7 +327,7 @@ if (isset($_SESSION['loggedin']) && isset($_SESSION['MaUser'])) {
             <p>contact@jollibee.vn</p>
           </div>
         </a>
-        
+
         <a href="LienHe.php" class="contact-dropdown-method">
           <div class="contact-dropdown-icon">
             <i class="fas fa-map-marker-alt"></i>
@@ -300,343 +343,343 @@ if (isset($_SESSION['loggedin']) && isset($_SESSION['MaUser'])) {
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-        const mainNav = document.getElementById('mainNav');
-        const mobileMenuClose = document.getElementById('mobileMenuClose');
-        const userDropdowns = document.querySelectorAll('.user-dropdown, .booking-dropdown');
-        const floatingContact = document.getElementById('floatingContact');
-        const contactBubble = document.getElementById('contactBubble');
+      const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+      const mainNav = document.getElementById('mainNav');
+      const mobileMenuClose = document.getElementById('mobileMenuClose');
+      const userDropdowns = document.querySelectorAll('.user-dropdown, .booking-dropdown');
+      const floatingContact = document.getElementById('floatingContact');
+      const contactBubble = document.getElementById('contactBubble');
 
-        // BIẾN CHO MODAL ĐĂNG XUẤT
-        const logoutTrigger = document.getElementById('logoutTrigger');
-        const logoutModal = document.getElementById('logoutModal');
-        const logoutModalClose = document.getElementById('logoutModalClose');
-        const logoutCancel = document.getElementById('logoutCancel');
-        const logoutConfirm = document.getElementById('logoutConfirm');
+      // BIẾN CHO MODAL ĐĂNG XUẤT
+      const logoutTrigger = document.getElementById('logoutTrigger');
+      const logoutModal = document.getElementById('logoutModal');
+      const logoutModalClose = document.getElementById('logoutModalClose');
+      const logoutCancel = document.getElementById('logoutCancel');
+      const logoutConfirm = document.getElementById('logoutConfirm');
 
-        // Biến để theo dõi dropdown timeout
-        let dropdownTimeout;
-        let contactHoverTimeout;
+      // Biến để theo dõi dropdown timeout
+      let dropdownTimeout;
+      let contactHoverTimeout;
 
-        // Đảm bảo tất cả dropdown ẩn khi load trang
-        floatingContact.classList.remove('active');
-        userDropdowns.forEach(dropdown => {
+      // Đảm bảo tất cả dropdown ẩn khi load trang
+      floatingContact.classList.remove('active');
+      userDropdowns.forEach(dropdown => {
+        dropdown.classList.remove('active');
+      });
+
+      // ===== XỬ LÝ MODAL ĐĂNG XUẤT =====
+      // Mở modal khi click đăng xuất
+      if (logoutTrigger) {
+        logoutTrigger.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          logoutModal.classList.add('active');
+
+          // Đóng tất cả dropdown khi mở modal
+          userDropdowns.forEach(dropdown => {
             dropdown.classList.remove('active');
+          });
+          floatingContact.classList.remove('active');
         });
+      }
 
-        // ===== XỬ LÝ MODAL ĐĂNG XUẤT =====
-        // Mở modal khi click đăng xuất
-        if (logoutTrigger) {
-            logoutTrigger.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                logoutModal.classList.add('active');
-                
-                // Đóng tất cả dropdown khi mở modal
-                userDropdowns.forEach(dropdown => {
-                    dropdown.classList.remove('active');
-                });
-                floatingContact.classList.remove('active');
-            });
+      // Đóng modal khi click nút đóng
+      logoutModalClose.addEventListener('click', function() {
+        logoutModal.classList.remove('active');
+      });
+
+      // Đóng modal khi click hủy
+      logoutCancel.addEventListener('click', function() {
+        logoutModal.classList.remove('active');
+      });
+
+      // Xác nhận đăng xuất
+      logoutConfirm.addEventListener('click', function() {
+        window.location.href = 'DangNhap.php?logout=true';
+      });
+
+      // Đóng modal khi click ra ngoài
+      logoutModal.addEventListener('click', function(e) {
+        if (e.target === logoutModal) {
+          logoutModal.classList.remove('active');
         }
+      });
 
-        // Đóng modal khi click nút đóng
-        logoutModalClose.addEventListener('click', function() {
-            logoutModal.classList.remove('active');
-        });
-
-        // Đóng modal khi click hủy
-        logoutCancel.addEventListener('click', function() {
-            logoutModal.classList.remove('active');
-        });
-
-        // Xác nhận đăng xuất
-        logoutConfirm.addEventListener('click', function() {
-            window.location.href = 'DangNhap.php?logout=true';
-        });
-
-        // Đóng modal khi click ra ngoài
-        logoutModal.addEventListener('click', function(e) {
-            if (e.target === logoutModal) {
-                logoutModal.classList.remove('active');
-            }
-        });
-
-        // Đóng modal khi nhấn Escape
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && logoutModal.classList.contains('active')) {
-                logoutModal.classList.remove('active');
-            }
-        });
-
-        // ===== XỬ LÝ MOBILE MENU =====
-        // Mobile menu toggle - slide từ bên PHẢI
-        mobileMenuToggle.addEventListener('click', function(e) {
-            e.stopPropagation();
-            openMobileMenu();
-        });
-
-        // Nút đóng mobile menu - NÚT X NẰM TRONG NAVBAR
-        mobileMenuClose.addEventListener('click', function(e) {
-            e.stopPropagation();
-            closeMobileMenu();
-        });
-
-        function openMobileMenu() {
-            mainNav.classList.add('active');
-            mobileMenuToggle.style.display = 'none'; // ẨN DẤU 3 GẠCH
-            mobileMenuClose.style.display = 'flex'; // HIỆN NÚT X
-            
-            // Đóng tất cả dropdown khi mở menu
-            userDropdowns.forEach(dropdown => {
-                dropdown.classList.remove('active');
-            });
-            floatingContact.classList.remove('active');
-            clearTimeout(dropdownTimeout);
-            clearTimeout(contactHoverTimeout);
+      // Đóng modal khi nhấn Escape
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && logoutModal.classList.contains('active')) {
+          logoutModal.classList.remove('active');
         }
+      });
 
-        function closeMobileMenu() {
-            mainNav.classList.remove('active');
-            mobileMenuToggle.style.display = 'flex'; // HIỆN LẠI DẤU 3 GẠCH
-            mobileMenuClose.style.display = 'none'; // ẨN NÚT X
-            
-            // Đóng tất cả dropdown khi đóng menu
-            userDropdowns.forEach(dropdown => {
-                dropdown.classList.remove('active');
-            });
-            floatingContact.classList.remove('active');
-            clearTimeout(dropdownTimeout);
-            clearTimeout(contactHoverTimeout);
-        }
+      // ===== XỬ LÝ MOBILE MENU =====
+      // Mobile menu toggle - slide từ bên PHẢI
+      mobileMenuToggle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        openMobileMenu();
+      });
 
-        // ===== XỬ LÝ DROPDOWN =====
+      // Nút đóng mobile menu - NÚT X NẰM TRONG NAVBAR
+      mobileMenuClose.addEventListener('click', function(e) {
+        e.stopPropagation();
+        closeMobileMenu();
+      });
+
+      function openMobileMenu() {
+        mainNav.classList.add('active');
+        mobileMenuToggle.style.display = 'none'; // ẨN DẤU 3 GẠCH
+        mobileMenuClose.style.display = 'flex'; // HIỆN NÚT X
+
+        // Đóng tất cả dropdown khi mở menu
         userDropdowns.forEach(dropdown => {
-            const trigger = dropdown.querySelector('.dropdown-trigger');
-            
-            // Click để toggle dropdown
-            trigger.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                // Đóng các dropdown khác
-                userDropdowns.forEach(other => {
-                    if (other !== dropdown) {
-                        other.classList.remove('active');
-                    }
-                });
-                floatingContact.classList.remove('active');
-                
-                // Toggle current dropdown - DROPDOWN CÓ Z-INDEX CAO HƠN
-                const isActive = dropdown.classList.contains('active');
-                dropdown.classList.toggle('active');
-                
-                // Reset timeout khi click
-                clearTimeout(dropdownTimeout);
-                
-                // Nếu dropdown được mở, set timeout để đóng sau 5s
-                if (dropdown.classList.contains('active') && !isActive) {
-                    dropdownTimeout = setTimeout(() => {
-                        dropdown.classList.remove('active');
-                    }, 5000); // 5 giây
-                }
-            });
+          dropdown.classList.remove('active');
+        });
+        floatingContact.classList.remove('active');
+        clearTimeout(dropdownTimeout);
+        clearTimeout(contactHoverTimeout);
+      }
 
-            // Hover để mở dropdown (chỉ desktop)
-            if (window.innerWidth > 768) {
-                dropdown.addEventListener('mouseenter', function() {
-                    clearTimeout(dropdownTimeout);
-                    clearTimeout(contactHoverTimeout);
-                    // Đóng các dropdown khác
-                    userDropdowns.forEach(other => {
-                        if (other !== dropdown) {
-                            other.classList.remove('active');
-                        }
-                    });
-                    floatingContact.classList.remove('active');
-                    dropdown.classList.add('active');
-                });
+      function closeMobileMenu() {
+        mainNav.classList.remove('active');
+        mobileMenuToggle.style.display = 'flex'; // HIỆN LẠI DẤU 3 GẠCH
+        mobileMenuClose.style.display = 'none'; // ẨN NÚT X
 
-                dropdown.addEventListener('mouseleave', function() {
-                    dropdownTimeout = setTimeout(() => {
-                        dropdown.classList.remove('active');
-                    }, 5000); // 5 giây
-                });
+        // Đóng tất cả dropdown khi đóng menu
+        userDropdowns.forEach(dropdown => {
+          dropdown.classList.remove('active');
+        });
+        floatingContact.classList.remove('active');
+        clearTimeout(dropdownTimeout);
+        clearTimeout(contactHoverTimeout);
+      }
 
-                // Giữ dropdown mở khi hover vào content
-                const content = dropdown.querySelector('.user-dropdown-content, .booking-dropdown-content');
-                if (content) {
-                    content.addEventListener('mouseenter', function() {
-                        clearTimeout(dropdownTimeout);
-                    });
+      // ===== XỬ LÝ DROPDOWN =====
+      userDropdowns.forEach(dropdown => {
+        const trigger = dropdown.querySelector('.dropdown-trigger');
 
-                    content.addEventListener('mouseleave', function() {
-                        dropdownTimeout = setTimeout(() => {
-                            dropdown.classList.remove('active');
-                        }, 5000);
-                    });
-                }
+        // Click để toggle dropdown
+        trigger.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+
+          // Đóng các dropdown khác
+          userDropdowns.forEach(other => {
+            if (other !== dropdown) {
+              other.classList.remove('active');
             }
+          });
+          floatingContact.classList.remove('active');
+
+          // Toggle current dropdown - DROPDOWN CÓ Z-INDEX CAO HƠN
+          const isActive = dropdown.classList.contains('active');
+          dropdown.classList.toggle('active');
+
+          // Reset timeout khi click
+          clearTimeout(dropdownTimeout);
+
+          // Nếu dropdown được mở, set timeout để đóng sau 5s
+          if (dropdown.classList.contains('active') && !isActive) {
+            dropdownTimeout = setTimeout(() => {
+              dropdown.classList.remove('active');
+            }, 5000); // 5 giây
+          }
         });
 
-        // ===== XỬ LÝ CONTACT BUBBLE =====
-        contactBubble.addEventListener('mouseenter', function() {
-            clearTimeout(contactHoverTimeout);
-            clearTimeout(dropdownTimeout);
-            // Đóng các dropdown khác
-            userDropdowns.forEach(dropdown => {
-                dropdown.classList.remove('active');
-            });
-            floatingContact.classList.add('active');
-        });
-
-        contactBubble.addEventListener('mouseleave', function() {
-            contactHoverTimeout = setTimeout(() => {
-                if (!floatingContact.querySelector('.contact-dropdown').matches(':hover')) {
-                    floatingContact.classList.remove('active');
-                }
-            }, 300);
-        });
-
-        // Giữ dropdown mở khi hover vào dropdown
-        const contactDropdown = floatingContact.querySelector('.contact-dropdown');
-        contactDropdown.addEventListener('mouseenter', function() {
-            clearTimeout(contactHoverTimeout);
-        });
-
-        contactDropdown.addEventListener('mouseleave', function() {
-            contactHoverTimeout = setTimeout(() => {
-                floatingContact.classList.remove('active');
-            }, 300);
-        });
-
-        // Click để toggle trên mobile
-        contactBubble.addEventListener('click', function() {
-            if (window.innerWidth <= 768) {
-                // Đóng các dropdown khác
-                userDropdowns.forEach(dropdown => {
-                    dropdown.classList.remove('active');
-                });
-                floatingContact.classList.toggle('active');
-            }
-        });
-
-        // ===== XỬ LÝ SỰ KIỆN CLICK NGOÀI =====
-        document.addEventListener('click', function(e) {
-            // Đóng mobile menu
-            if (!mainNav.contains(e.target) && 
-                !mobileMenuToggle.contains(e.target) && 
-                !mobileMenuClose.contains(e.target)) {
-                closeMobileMenu();
-            }
-            
-            // Đóng dropdown trên desktop khi click ra ngoài
-            if (window.innerWidth > 768) {
-                let clickedInsideDropdown = false;
-                userDropdowns.forEach(dropdown => {
-                    if (dropdown.contains(e.target)) {
-                        clickedInsideDropdown = true;
-                    }
-                });
-                
-                if (!clickedInsideDropdown && !floatingContact.contains(e.target)) {
-                    userDropdowns.forEach(dropdown => {
-                        dropdown.classList.remove('active');
-                    });
-                    floatingContact.classList.remove('active');
-                    clearTimeout(dropdownTimeout);
-                    clearTimeout(contactHoverTimeout);
-                }
-            }
-            
-            // Đóng dropdown trên mobile khi click ra ngoài
-            if (window.innerWidth <= 768) {
-                let clickedInsideDropdown = false;
-                userDropdowns.forEach(dropdown => {
-                    if (dropdown.contains(e.target)) {
-                        clickedInsideDropdown = true;
-                    }
-                });
-                
-                if (!clickedInsideDropdown && !floatingContact.contains(e.target)) {
-                    userDropdowns.forEach(dropdown => {
-                        dropdown.classList.remove('active');
-                    });
-                    floatingContact.classList.remove('active');
-                    clearTimeout(dropdownTimeout);
-                    clearTimeout(contactHoverTimeout);
-                }
-            }
-        });
-
-        // Close mobile menu when clicking on links (except dropdown triggers)
-        const navLinks = mainNav.querySelectorAll('a');
-        navLinks.forEach(link => {
-            link.addEventListener('click', function(e) {
-                if (!this.classList.contains('dropdown-trigger')) {
-                    closeMobileMenu();
-                }
-            });
-        });
-
-        // Prevent form submission if search is empty
-        const searchForms = document.querySelectorAll('form');
-        searchForms.forEach(form => {
-            const input = form.querySelector('input[name="keyword"]');
-            if (input) {
-                form.addEventListener('submit', function(e) {
-                    if (input.value.trim() === '') {
-                        e.preventDefault();
-                        alert('Vui lòng nhập từ khóa tìm kiếm');
-                    }
-                });
-            }
-        });
-
-        // Handle window resize
-        window.addEventListener('resize', function() {
-            if (window.innerWidth > 768) {
-                closeMobileMenu();
-                mobileMenuToggle.style.display = 'none';
-            } else {
-                mobileMenuToggle.style.display = 'flex';
-                // Trên mobile, đóng tất cả dropdown khi resize
-                userDropdowns.forEach(dropdown => {
-                    dropdown.classList.remove('active');
-                });
-                floatingContact.classList.remove('active');
-            }
-            clearTimeout(dropdownTimeout);
-            clearTimeout(contactHoverTimeout);
-        });
-
-        // Auto-hide notification after first interaction
-        const notification = document.querySelector('.contact-notification');
-        contactBubble.addEventListener('mouseenter', function() {
-            if (notification) {
-                notification.style.display = 'none';
-            }
-        });
-
-        // Đóng tất cả dropdown khi scroll (tuỳ chọn)
-        window.addEventListener('scroll', function() {
-            if (window.innerWidth > 768) {
-                userDropdowns.forEach(dropdown => {
-                    dropdown.classList.remove('active');
-                });
-                floatingContact.classList.remove('active');
-                clearTimeout(dropdownTimeout);
-                clearTimeout(contactHoverTimeout);
-            }
-        });
-
-        // Đảm bảo hiển thị đúng khi load trang
+        // Hover để mở dropdown (chỉ desktop)
         if (window.innerWidth > 768) {
-            mobileMenuToggle.style.display = 'none';
-            mobileMenuClose.style.display = 'none';
-        } else {
-            mobileMenuToggle.style.display = 'flex';
-            mobileMenuClose.style.display = 'none';
+          dropdown.addEventListener('mouseenter', function() {
+            clearTimeout(dropdownTimeout);
+            clearTimeout(contactHoverTimeout);
+            // Đóng các dropdown khác
+            userDropdowns.forEach(other => {
+              if (other !== dropdown) {
+                other.classList.remove('active');
+              }
+            });
+            floatingContact.classList.remove('active');
+            dropdown.classList.add('active');
+          });
+
+          dropdown.addEventListener('mouseleave', function() {
+            dropdownTimeout = setTimeout(() => {
+              dropdown.classList.remove('active');
+            }, 5000); // 5 giây
+          });
+
+          // Giữ dropdown mở khi hover vào content
+          const content = dropdown.querySelector('.user-dropdown-content, .booking-dropdown-content');
+          if (content) {
+            content.addEventListener('mouseenter', function() {
+              clearTimeout(dropdownTimeout);
+            });
+
+            content.addEventListener('mouseleave', function() {
+              dropdownTimeout = setTimeout(() => {
+                dropdown.classList.remove('active');
+              }, 5000);
+            });
+          }
         }
+      });
+
+      // ===== XỬ LÝ CONTACT BUBBLE =====
+      contactBubble.addEventListener('mouseenter', function() {
+        clearTimeout(contactHoverTimeout);
+        clearTimeout(dropdownTimeout);
+        // Đóng các dropdown khác
+        userDropdowns.forEach(dropdown => {
+          dropdown.classList.remove('active');
+        });
+        floatingContact.classList.add('active');
+      });
+
+      contactBubble.addEventListener('mouseleave', function() {
+        contactHoverTimeout = setTimeout(() => {
+          if (!floatingContact.querySelector('.contact-dropdown').matches(':hover')) {
+            floatingContact.classList.remove('active');
+          }
+        }, 300);
+      });
+
+      // Giữ dropdown mở khi hover vào dropdown
+      const contactDropdown = floatingContact.querySelector('.contact-dropdown');
+      contactDropdown.addEventListener('mouseenter', function() {
+        clearTimeout(contactHoverTimeout);
+      });
+
+      contactDropdown.addEventListener('mouseleave', function() {
+        contactHoverTimeout = setTimeout(() => {
+          floatingContact.classList.remove('active');
+        }, 300);
+      });
+
+      // Click để toggle trên mobile
+      contactBubble.addEventListener('click', function() {
+        if (window.innerWidth <= 768) {
+          // Đóng các dropdown khác
+          userDropdowns.forEach(dropdown => {
+            dropdown.classList.remove('active');
+          });
+          floatingContact.classList.toggle('active');
+        }
+      });
+
+      // ===== XỬ LÝ SỰ KIỆN CLICK NGOÀI =====
+      document.addEventListener('click', function(e) {
+        // Đóng mobile menu
+        if (!mainNav.contains(e.target) &&
+          !mobileMenuToggle.contains(e.target) &&
+          !mobileMenuClose.contains(e.target)) {
+          closeMobileMenu();
+        }
+
+        // Đóng dropdown trên desktop khi click ra ngoài
+        if (window.innerWidth > 768) {
+          let clickedInsideDropdown = false;
+          userDropdowns.forEach(dropdown => {
+            if (dropdown.contains(e.target)) {
+              clickedInsideDropdown = true;
+            }
+          });
+
+          if (!clickedInsideDropdown && !floatingContact.contains(e.target)) {
+            userDropdowns.forEach(dropdown => {
+              dropdown.classList.remove('active');
+            });
+            floatingContact.classList.remove('active');
+            clearTimeout(dropdownTimeout);
+            clearTimeout(contactHoverTimeout);
+          }
+        }
+
+        // Đóng dropdown trên mobile khi click ra ngoài
+        if (window.innerWidth <= 768) {
+          let clickedInsideDropdown = false;
+          userDropdowns.forEach(dropdown => {
+            if (dropdown.contains(e.target)) {
+              clickedInsideDropdown = true;
+            }
+          });
+
+          if (!clickedInsideDropdown && !floatingContact.contains(e.target)) {
+            userDropdowns.forEach(dropdown => {
+              dropdown.classList.remove('active');
+            });
+            floatingContact.classList.remove('active');
+            clearTimeout(dropdownTimeout);
+            clearTimeout(contactHoverTimeout);
+          }
+        }
+      });
+
+      // Close mobile menu when clicking on links (except dropdown triggers)
+      const navLinks = mainNav.querySelectorAll('a');
+      navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+          if (!this.classList.contains('dropdown-trigger')) {
+            closeMobileMenu();
+          }
+        });
+      });
+
+      // Prevent form submission if search is empty
+      const searchForms = document.querySelectorAll('form');
+      searchForms.forEach(form => {
+        const input = form.querySelector('input[name="keyword"]');
+        if (input) {
+          form.addEventListener('submit', function(e) {
+            if (input.value.trim() === '') {
+              e.preventDefault();
+              alert('Vui lòng nhập từ khóa tìm kiếm');
+            }
+          });
+        }
+      });
+
+      // Handle window resize
+      window.addEventListener('resize', function() {
+        if (window.innerWidth > 768) {
+          closeMobileMenu();
+          mobileMenuToggle.style.display = 'none';
+        } else {
+          mobileMenuToggle.style.display = 'flex';
+          // Trên mobile, đóng tất cả dropdown khi resize
+          userDropdowns.forEach(dropdown => {
+            dropdown.classList.remove('active');
+          });
+          floatingContact.classList.remove('active');
+        }
+        clearTimeout(dropdownTimeout);
+        clearTimeout(contactHoverTimeout);
+      });
+
+      // Auto-hide notification after first interaction
+      const notification = document.querySelector('.contact-notification');
+      contactBubble.addEventListener('mouseenter', function() {
+        if (notification) {
+          notification.style.display = 'none';
+        }
+      });
+
+      // Đóng tất cả dropdown khi scroll (tuỳ chọn)
+      window.addEventListener('scroll', function() {
+        if (window.innerWidth > 768) {
+          userDropdowns.forEach(dropdown => {
+            dropdown.classList.remove('active');
+          });
+          floatingContact.classList.remove('active');
+          clearTimeout(dropdownTimeout);
+          clearTimeout(contactHoverTimeout);
+        }
+      });
+
+      // Đảm bảo hiển thị đúng khi load trang
+      if (window.innerWidth > 768) {
+        mobileMenuToggle.style.display = 'none';
+        mobileMenuClose.style.display = 'none';
+      } else {
+        mobileMenuToggle.style.display = 'flex';
+        mobileMenuClose.style.display = 'none';
+      }
     });
   </script>

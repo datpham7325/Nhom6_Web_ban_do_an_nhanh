@@ -11,6 +11,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
+    <?php include_once "includes/header2.php"; ?>
+
     <!-- Mở kết nối -->
     <?php
         $hostname = "localhost";
@@ -117,7 +119,7 @@
                     echo "<td>" . $maBienThe . "</td>";
                     echo "<td>" . $tenMonAn . "</td>";
                             
-                    $anh = "../img/". $hinhAnh;
+                    $anh = "img/". $hinhAnh;
                     echo "<td>" . "<img src='$anh' width='50px' height='50px'>" . "</td>";
                             
                     echo "<td>" . $tenLoai . "</td>";

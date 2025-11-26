@@ -78,3 +78,30 @@ input[type="submit"]:hover {
     opacity: 0;
   }
 }
+
+/* --- CSS CHO PHẦN GHI NHỚ ĐĂNG NHẬP --- */
+
+/* Căn lề trái cho ô chứa checkbox (thay cho style inline cũ) */
+.remember-row {
+  text-align: left;
+  padding-left: 5px;
+  padding-bottom: 10px; /* Tạo khoảng cách với nút Đăng nhập */
+}
+
+/* Định dạng nhãn (Label) */
+.remember-label {
+  cursor: pointer;
+  color: #555;
+  font-size: 14px;
+  display: flex;       /* Dùng Flexbox để căn chỉnh hàng ngang */
+  align-items: center; /* Căn giữa theo trục dọc */
+  gap: 8px;            /* Khoảng cách giữa ô vuông và chữ */
+}
+
+/* Quan trọng: Reset lại chiều rộng cho checkbox */
+/* Vì ở trên bạn set input width 100% nên checkbox bị kéo giãn */
+.remember-label input[type="checkbox"] {
+  width: auto;         /* Trả về kích thước tự nhiên */
+  margin: 0;           /* Bỏ margin mặc định */
+  cursor: pointer;
+}

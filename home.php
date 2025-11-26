@@ -16,6 +16,7 @@
 </head>
 
 <body>
+    <?php include_once "includes/header2.php"; ?>
     <!-- Mở kết nối -->
     <?php
     include_once("includes/myenv.php");
