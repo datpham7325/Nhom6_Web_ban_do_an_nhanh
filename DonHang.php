@@ -9,6 +9,7 @@ if (!isset($_SESSION['loggedin'])) {
 
 // Lấy mã người dùng từ session
 $maUser = $_SESSION['MaUser'];
+// Lấy biến $conn từ header.php
 
 // Truy vấn lấy danh sách đơn hàng đã mua của người dùng
 $ordersSQL = "SELECT dh.*, COUNT(ctdh.MaChiTiet) as SoMon 
@@ -36,20 +37,16 @@ if ($stmt) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đơn Hàng Của Tôi</title>
     <link rel="stylesheet" href="css/donhang.css">
-</head>
+    </head>
 
 <body>
-    <?php include_once "includes/header.php"; ?>
-
     <div class="container">
-        <!-- HEADER TRANG ĐƠN HÀNG -->
         <div class="page-header">
             <h1>ĐƠN HÀNG CỦA TÔI</h1>
             <p>Theo dõi và quản lý đơn hàng đã mua</p>
         </div>
 
         <div class="content-container">
-            <!-- Hiển thị thông báo thành công nếu có -->
             <?php if (isset($_SESSION['order_success'])): ?>
                 <div class="alert alert-success">
                     <?php echo $_SESSION['order_success'];
@@ -57,7 +54,6 @@ if ($stmt) {
                 </div>
             <?php endif; ?>
 
-            <!-- Hiển thị thông báo lỗi nếu có -->
             <?php if (isset($_SESSION['order_error'])): ?>
                 <div class="alert alert-error">
                     <?php echo $_SESSION['order_error'];
@@ -65,25 +61,20 @@ if ($stmt) {
                 </div>
             <?php endif; ?>
 
-            <!-- Kiểm tra xem có đơn hàng nào không -->
             <?php if ($ordersResult && mysqli_num_rows($ordersResult) > 0): ?>
                 <div class="orders-container">
-                    <!-- Lặp qua từng đơn hàng và hiển thị -->
                     <?php while ($order = mysqli_fetch_assoc($ordersResult)): ?>
                         <div class="order-card">
                             <div class="order-header">
                                 <div class="order-info">
                                     <div class="order-id">Mã đơn: <strong>#<?php echo $order['MaDonHang']; ?></strong></div>
-                                    <!-- Hiển thị ngày đặt hàng đã định dạng -->
                                     <div class="order-date"><?php echo date('d/m/Y H:i', strtotime($order['NgayDat'])); ?></div>
                                 </div>
-                                <!-- Hiển thị trạng thái đơn hàng với class tương ứng -->
                                 <div class="order-status <?php
                                                             $trangThai = $order['TrangThai'] ?? 'cho_xac_nhan';
                                                             echo str_replace('_', '-', $trangThai);
                                                             ?>">
                                     <?php
-                                    // Chuyển đổi trạng thái từ dạng code sang tiếng Việt
                                     switch ($order['TrangThai'] ?? 'cho_xac_nhan') {
                                         case 'cho_xac_nhan':
                                             echo 'Chờ xác nhận';
@@ -115,14 +106,12 @@ if ($stmt) {
                                     </div>
                                     <div class="detail-item">
                                         <span class="label">Tổng tiền:</span>
-                                        <!-- Định dạng số tiền theo kiểu Việt Nam -->
                                         <span class="value"><?php echo number_format($order['TongTien'], 0, ',', '.'); ?>₫</span>
                                     </div>
                                     <div class="detail-item">
                                         <span class="label">Phương thức:</span>
                                         <span class="value">
                                             <?php
-                                            // Chuyển đổi phương thức thanh toán từ code sang tiếng Việt
                                             $phuongThuc = $order['PhuongThucThanhToan'] ?? 'tien_mat';
                                             switch ($phuongThuc) {
                                                 case 'tien_mat':
@@ -142,26 +131,21 @@ if ($stmt) {
                                     </div>
                                     <div class="detail-item">
                                         <span class="label">Địa chỉ giao:</span>
-                                        <!-- Hiển thị địa chỉ giao hàng, sử dụng htmlspecialchars để bảo mật -->
                                         <span class="value"><?php echo htmlspecialchars($order['DiaChiGiaoHang'] ?? ''); ?></span>
                                     </div>
                                 </div>
 
-                                <!-- Các nút hành động cho đơn hàng -->
                                 <div class="order-actions">
-                                    <!-- Nút xem chi tiết đơn hàng -->
                                     <a href="ChiTietDonHang.php?id=<?php echo $order['MaDonHang']; ?>" class="btn-view">
                                         <span class="btn-icon">👁️</span>
                                         Xem chi tiết
                                     </a>
-                                    <!-- Chỉ hiển thị nút đánh giá cho đơn hàng đã hoàn thành -->
                                     <?php if (($order['TrangThai'] ?? '') == 'hoan_thanh'): ?>
-                                        <button class="btn-review" onclick="openReview(<?php echo $order['MaDonHang']; ?>)">
+                                        <button class="btn-review" onclick="openReview(<?php echo $order['MaDonHang']; ?>, event)">
                                             <span class="btn-icon">⭐</span>
                                             Đánh giá
                                         </button>
                                     <?php endif; ?>
-                                    <!-- Chỉ hiển thị nút hủy đơn cho đơn hàng đang chờ xác nhận hoặc đang xử lý -->
                                     <?php if (($order['TrangThai'] ?? '') == 'cho_xac_nhan' || ($order['TrangThai'] ?? '') == 'dang_xu_ly'): ?>
                                         <button class="btn-cancel" onclick="showCancelConfirmModal(<?php echo $order['MaDonHang']; ?>)">
                                             <span class="btn-icon">❌</span>
@@ -174,7 +158,6 @@ if ($stmt) {
                     <?php endwhile; ?>
                 </div>
             <?php else: ?>
-                <!-- Hiển thị khi không có đơn hàng nào -->
                 <div class="empty-orders">
                     <div class="empty-icon">📦</div>
                     <h3>Chưa có đơn hàng nào</h3>
@@ -187,8 +170,33 @@ if ($stmt) {
             <?php endif; ?>
         </div>
     </div>
-
+    
     <script src="js/donhang.js"></script>
+
+    <script>
+        /**
+         * Chuyển hướng đến trang tạo đánh giá (TaoDanhGia.php).
+         * 🔥 SỬA: Nhận đối tượng sự kiện e (event) làm tham số thứ hai.
+         * @param {number} orderId Mã đơn hàng cần đánh giá.
+         * @param {Event} e Đối tượng sự kiện click.
+         */
+        function openReview(orderId, e) {
+            // Lấy nút đã click để thêm hiệu ứng loading
+            const button = e.target.closest('.btn-review');
+            
+            // Hiệu ứng loading
+            button.innerHTML = '<span class="btn-icon">⏳</span> Đang tải...';
+            button.disabled = true;
+            
+            // Chuyển hướng đến trang TaoDanhGia.php
+            setTimeout(() => {
+                window.location.href = 'TaoDanhGia.php?id=' + orderId;
+            }, 200);
+        }
+        
+        // Ghi chú: Các hàm showCancelConfirmModal, confirmCancelOrder... được định nghĩa trong donhang.js
+    </script>
+    
     <?php include_once "includes/footer.php"; ?>
 </body>
 

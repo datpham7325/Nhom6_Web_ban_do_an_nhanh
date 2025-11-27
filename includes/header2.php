@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 include_once("includes/myenv.php");
 ?>
 
@@ -31,8 +33,16 @@ include_once("includes/myenv.php");
 
           <div class="dropdown-menu">
             <a href="home.php"><i class="fas fa-utensils"></i> Quản lý món ăn</a>
-            <a href="duyet_don.php"><i class="fas fa-check-circle"></i> Duyệt đơn hàng</a>
-            <a href="DangNhap.php?logout=true" onclick="return confirm('Bạn có chắc muốn đăng xuất?');">
+            
+            <a href="duyet_don.php"><i class="fas fa-receipt"></i> Duyệt đơn hàng</a>
+            
+            <a href="duyet_dat_ban.php"><i class="fas fa-table"></i> Duyệt đặt bàn</a>
+
+            <a href="duyet_su_kien.php"><i class="fas fa-calendar-check"></i> Duyệt sự kiện</a>
+
+            <div class="dropdown-divider"></div>
+
+            <a href="DangNhap.php?logout=true" onclick="return confirm('Bạn có chắc muốn đăng xuất?');" class="logout-item">
               <i class="fas fa-sign-out-alt"></i> Đăng xuất
             </a>
           </div>
@@ -51,11 +61,13 @@ include_once("includes/myenv.php");
       const authContainer = document.getElementById('userAuthDropdown');
       
       if (authContainer) {
+        // Toggle menu khi click
         authContainer.addEventListener('click', function(e) {
           this.classList.toggle('active');
           e.stopPropagation();
         });
 
+        // Đóng menu khi click ra ngoài
         document.addEventListener('click', function() {
           authContainer.classList.remove('active');
         });

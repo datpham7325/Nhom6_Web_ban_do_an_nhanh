@@ -1,4 +1,10 @@
 <?php
+// 🔥 SỬA LỖI NOTICE: Chỉ gọi session_start() nếu session chưa được khởi động
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+// ----------------------------------------------------------------------
+
 include_once "includes/header.php";
 
 // Kiểm tra trạng thái đăng nhập của người dùng
@@ -26,82 +32,88 @@ if($stmt) {
 
 // Xử lý cập nhật thông tin khi form được submit
 if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['btnUpdate'])) {
-    $hoTen = trim($_POST['hoten']);
+    // Lấy dữ liệu từ form
+    $ho = trim($_POST['ho']);
+    $ten = trim($_POST['ten']);
     $email = trim($_POST['email']);
     $soDienThoai = trim($_POST['sodienthoai']);
     $diaChi = trim($_POST['diachi']);
     
-    // Validate dữ liệu trường họ tên
-    if(empty($hoTen)) {
-        $errors['hoten'] = "Họ tên không được để trống";
-    } elseif(strlen($hoTen) < 2 || strlen($hoTen) > 50) {
-        $errors['hoten'] = "Họ tên phải từ 2 đến 50 ký tự";
+    // Validate dữ liệu
+    if(empty($ho)) {
+        $errors['ho'] = "Họ không được để trống";
     }
     
-    // Validate dữ liệu trường email
+    if(empty($ten)) {
+        $errors['ten'] = "Tên không được để trống";
+    }
+    
     if(empty($email)) {
         $errors['email'] = "Email không được để trống";
     } elseif(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $errors['email'] = "Email không hợp lệ";
     }
     
-    // Validate dữ liệu trường số điện thoại
     if(empty($soDienThoai)) {
         $errors['sodienthoai'] = "Số điện thoại không được để trống";
     } elseif(!preg_match('/^[0-9]{10,11}$/', $soDienThoai)) {
         $errors['sodienthoai'] = "Số điện thoại phải có 10-11 chữ số";
     }
     
-    // Validate dữ liệu trường địa chỉ
-    if(!empty($diaChi) && strlen($diaChi) > 200) {
-        $errors['diachi'] = "Địa chỉ không được quá 200 ký tự";
+    // Kiểm tra email có trùng với người khác không
+    if(empty($errors)) {
+        $checkEmailSQL = "SELECT MaUser FROM users WHERE Email = ? AND MaUser != ?";
+        $stmt = mysqli_prepare($conn, $checkEmailSQL);
+        if($stmt) {
+            mysqli_stmt_bind_param($stmt, "si", $email, $maUser);
+            mysqli_stmt_execute($stmt);
+            $emailResult = mysqli_stmt_get_result($stmt);
+            if(mysqli_num_rows($emailResult) > 0) {
+                $errors['email'] = "Email này đã được sử dụng bởi tài khoản khác";
+            }
+            mysqli_stmt_close($stmt);
+        }
+    }
+    
+    // Kiểm tra số điện thoại có trùng với người khác không
+    if(empty($errors)) {
+        $checkPhoneSQL = "SELECT MaUser FROM users WHERE SDT = ? AND MaUser != ?";
+        $stmt = mysqli_prepare($conn, $checkPhoneSQL);
+        if($stmt) {
+            mysqli_stmt_bind_param($stmt, "si", $soDienThoai, $maUser);
+            mysqli_stmt_execute($stmt);
+            $phoneResult = mysqli_stmt_get_result($stmt);
+            if(mysqli_num_rows($phoneResult) > 0) {
+                $errors['sodienthoai'] = "Số điện thoại này đã được sử dụng bởi tài khoản khác";
+            }
+            mysqli_stmt_close($stmt);
+        }
     }
     
     // Nếu không có lỗi validation thì thực hiện cập nhật
     if(empty($errors)) {
-        $updateSQL = "UPDATE users SET HoTen = ?, Email = ?, SoDienThoai = ?, DiaChi = ? WHERE MaUser = ?";
+        $updateSQL = "UPDATE users SET Ho = ?, Ten = ?, Email = ?, SDT = ?, DiaChi = ? WHERE MaUser = ?";
         $stmt = mysqli_prepare($conn, $updateSQL);
         if($stmt) {
-            mysqli_stmt_bind_param($stmt, "ssssi", $hoTen, $email, $soDienThoai, $diaChi, $maUser);
+            mysqli_stmt_bind_param($stmt, "sssssi", $ho, $ten, $email, $soDienThoai, $diaChi, $maUser);
             
             if(mysqli_stmt_execute($stmt)) {
-                $success = "Cập nhật thông tin thành công!";
-                // Cập nhật lại thông tin user trong biến để hiển thị
-                $userInfo['HoTen'] = $hoTen;
+                $success = "🎉 Cập nhật thông tin thành công!";
+                // Cập nhật lại thông tin user
+                $userInfo['Ho'] = $ho;
+                $userInfo['Ten'] = $ten;
                 $userInfo['Email'] = $email;
-                $userInfo['SoDienThoai'] = $soDienThoai;
+                $userInfo['SDT'] = $soDienThoai;
                 $userInfo['DiaChi'] = $diaChi;
             } else {
-                $errors['general'] = "Cập nhật thông tin thất bại!";
+                $errors['general'] = "❌ Cập nhật thông tin thất bại!";
             }
             mysqli_stmt_close($stmt);
         } else {
-            $errors['general'] = "Lỗi kết nối database!";
+            $errors['general'] = "❌ Lỗi kết nối database!";
         }
     }
 }
-
-// Hàm kiểm tra và xử lý địa chỉ nếu là JSON OTP
-// Đây là giải pháp tạm thời để xử lý lỗi hiển thị JSON OTP trong ô địa chỉ
-function getCleanAddress($address) {
-    if (empty($address)) {
-        return '';
-    }
-    
-    // Kiểm tra nếu là chuỗi JSON bắt đầu bằng {"otp"
-    if (is_string($address) && strpos($address, '{"otp"') === 0) {
-        $decoded = json_decode($address, true);
-        // Nếu decode thành công và có cấu trúc OTP, trả về chuỗi rỗng
-        if (is_array($decoded) && isset($decoded['otp']) && isset($decoded['expires'])) {
-            return '';
-        }
-    }
-    
-    return $address;
-}
-
-// Làm sạch địa chỉ trước khi hiển thị - đảm bảo không hiển thị JSON OTP
-$cleanDiaChi = getCleanAddress($userInfo['DiaChi'] ?? '');
 ?>
 
 <!DOCTYPE html>
@@ -113,8 +125,8 @@ $cleanDiaChi = getCleanAddress($userInfo['DiaChi'] ?? '');
     <link rel="stylesheet" href="css/ThongTinTaiKhoan.css">
 </head>
 <body>
+    <?php include_once "includes/header.php"; ?>
     <div class="container">
-        <!-- Header trang thông tin tài khoản -->
         <div class="page-header">
             <h1>Thông Tin Tài Khoản</h1>
             <p>Quản lý thông tin cá nhân của bạn</p>
@@ -122,162 +134,167 @@ $cleanDiaChi = getCleanAddress($userInfo['DiaChi'] ?? '');
 
         <div class="content-container">
             <div class="profile-layout">
-                <!-- Sidebar menu điều hướng -->
                 <div class="profile-sidebar">
                     <div class="user-info">
                         <div class="user-avatar">
                             <div class="avatar-circle">
-                                <!-- Hiển thị chữ cái đầu của tên người dùng -->
                                 <?php 
-                                    $initial = !empty($userInfo['HoTen']) ? mb_substr($userInfo['HoTen'], 0, 1) : 'U';
+                                    $initial = !empty($userInfo['Ten']) ? mb_substr($userInfo['Ten'], 0, 1) : 
+                                              (!empty($userInfo['Ho']) ? mb_substr($userInfo['Ho'], 0, 1) : 'U');
                                     echo strtoupper($initial);
                                 ?>
                             </div>
                         </div>
                         <div class="user-details">
-                            <h3 class="user-name"><?php echo htmlspecialchars($userInfo['HoTen'] ?? 'Người dùng'); ?></h3>
+                            <h3 class="user-name"><?php echo htmlspecialchars(($userInfo['Ho'] ?? '') . ' ' . ($userInfo['Ten'] ?? 'Người dùng')); ?></h3>
                             <p class="user-email"><?php echo htmlspecialchars($userInfo['Email'] ?? 'Chưa có email'); ?></p>
+                            <p class="user-phone"><?php echo htmlspecialchars($userInfo['SDT'] ?? 'Chưa có số điện thoại'); ?></p>
+                            <?php if(!empty($userInfo['DiaChi'])): ?>
+                                <p class="user-address">📍 <?php echo htmlspecialchars($userInfo['DiaChi']); ?></p>
+                            <?php endif; ?>
                         </div>
                     </div>
-                    <div class="sidebar-menu">
-                        <!-- Menu item active - trang hiện tại -->
-                        <a href="ThongTinTaiKhoan.php" class="menu-item active">
-                            <span class="menu-icon">👤</span>
-                            <span class="menu-text">Thông tin tài khoản</span>
-                        </a>
-                        <a href="DonHang.php" class="menu-item">
-                            <span class="menu-icon">📦</span>
-                            <span class="menu-text">Đơn hàng của tôi</span>
-                        </a>
-                        <a href="DanhGia.php" class="menu-item">
-                            <span class="menu-icon">⭐</span>
-                            <span class="menu-text">Đánh giá</span>
-                        </a>
-                        <a href="DieuKhoan.php" class="menu-item">
-                            <span class="menu-icon">📄</span>
-                            <span class="menu-text">Điều khoản sử dụng</span>
-                        </a>
-                        <a href="BaoMat.php" class="menu-item">
-                            <span class="menu-icon">🔒</span>
-                            <span class="menu-text">Chính sách bảo mật</span>
-                        </a>
-                    </div>
+                    <div class="profile-sidebar">
+                <div class="sidebar-menu">
+                    <a href="ThongTinTaiKhoan.php" class="menu-item active">
+                        <span class="menu-icon">👤</span>
+                        Thông tin tài khoản
+                    </a>
+                    <a href="DonHang.php" class="menu-item">
+                        <span class="menu-icon">📦</span>
+                        Đơn hàng của tôi
+                    </a>
+                    <a href="DanhGia.php" class="menu-item">
+                        <span class="menu-icon">⭐</span>
+                        Đánh giá
+                    </a>
+                    <a href="DieuKhoan.php" class="menu-item">
+                        <span class="menu-icon">📄</span>
+                        Điều khoản sử dụng
+                    </a>
+                    <a href="BaoMat.php" class="menu-item">
+                        <span class="menu-icon">🔒</span>
+                        Chính sách bảo mật
+                    </a>
+                </div>
+            </div>
                 </div>
 
-                <!-- Nội dung chính của trang -->
                 <div class="profile-content">
-                    <!-- Card thông tin cá nhân -->
                     <div class="profile-card">
                         <div class="card-header">
                             <h3>Thông tin cá nhân</h3>
                         </div>
                         <div class="card-body">
-                            <!-- Hiển thị thông báo lỗi chung -->
                             <?php if(isset($errors['general'])): ?>
                                 <div class="alert alert-error">
                                     <?php echo htmlspecialchars($errors['general']); ?>
                                 </div>
                             <?php endif; ?>
                             
-                            <!-- Hiển thị thông báo thành công -->
                             <?php if($success): ?>
                                 <div class="alert alert-success">
                                     <?php echo htmlspecialchars($success); ?>
                                 </div>
                             <?php endif; ?>
                             
-                            <!-- Form cập nhật thông tin cá nhân -->
-                            <form method="POST" action="" id="profileForm">
+                            <form method="POST" action="">
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label class="form-label">Họ tên *</label>
-                                        <input type="text" name="hoten" class="form-input <?php echo isset($errors['hoten']) ? 'error' : ''; ?>" 
-                                               value="<?php echo htmlspecialchars($userInfo['HoTen'] ?? ''); ?>"
-                                               placeholder="Nhập họ tên của bạn">
-                                        <!-- Hiển thị lỗi validation cho trường họ tên -->
-                                        <?php if(isset($errors['hoten'])): ?>
-                                            <span class="error-message show"><?php echo htmlspecialchars($errors['hoten']); ?></span>
-                                        <?php else: ?>
-                                            <span class="error-message" id="hoten-error"></span>
+                                        <label class="form-label">Họ *</label>
+                                        <input type="text" name="ho" class="form-input <?php echo isset($errors['ho']) ? 'error' : ''; ?>" 
+                                               value="<?php echo htmlspecialchars($userInfo['Ho'] ?? ''); ?>">
+                                        <?php if(isset($errors['ho'])): ?>
+                                            <span class="error-message"><?php echo htmlspecialchars($errors['ho']); ?></span>
                                         <?php endif; ?>
                                     </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Tên *</label>
+                                        <input type="text" name="ten" class="form-input <?php echo isset($errors['ten']) ? 'error' : ''; ?>" 
+                                               value="<?php echo htmlspecialchars($userInfo['Ten'] ?? ''); ?>">
+                                        <?php if(isset($errors['ten'])): ?>
+                                            <span class="error-message"><?php echo htmlspecialchars($errors['ten']); ?></span>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <div class="form-row">
                                     <div class="form-group">
                                         <label class="form-label">Email *</label>
                                         <input type="email" name="email" class="form-input <?php echo isset($errors['email']) ? 'error' : ''; ?>" 
-                                               value="<?php echo htmlspecialchars($userInfo['Email'] ?? ''); ?>"
-                                               placeholder="Nhập email của bạn">
-                                        <!-- Hiển thị lỗi validation cho trường email -->
+                                               value="<?php echo htmlspecialchars($userInfo['Email'] ?? ''); ?>">
                                         <?php if(isset($errors['email'])): ?>
-                                            <span class="error-message show"><?php echo htmlspecialchars($errors['email']); ?></span>
-                                        <?php else: ?>
-                                            <span class="error-message" id="email-error"></span>
+                                            <span class="error-message"><?php echo htmlspecialchars($errors['email']); ?></span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Số điện thoại *</label>
+                                        <input type="tel" name="sodienthoai" class="form-input <?php echo isset($errors['sodienthoai']) ? 'error' : ''; ?>" 
+                                               value="<?php echo htmlspecialchars($userInfo['SDT'] ?? ''); ?>">
+                                        <?php if(isset($errors['sodienthoai'])): ?>
+                                            <span class="error-message"><?php echo htmlspecialchars($errors['sodienthoai']); ?></span>
                                         <?php endif; ?>
                                     </div>
                                 </div>
                                 <div class="form-row">
-                                    <div class="form-group">
-                                        <label class="form-label">Số điện thoại *</label>
-                                        <input type="tel" name="sodienthoai" class="form-input <?php echo isset($errors['sodienthoai']) ? 'error' : ''; ?>" 
-                                               value="<?php echo htmlspecialchars($userInfo['SoDienThoai'] ?? ''); ?>"
-                                               placeholder="Nhập số điện thoại">
-                                        <!-- Hiển thị lỗi validation cho trường số điện thoại -->
-                                        <?php if(isset($errors['sodienthoai'])): ?>
-                                            <span class="error-message show"><?php echo htmlspecialchars($errors['sodienthoai']); ?></span>
-                                        <?php else: ?>
-                                            <span class="error-message" id="sodienthoai-error"></span>
-                                        <?php endif; ?>
-                                    </div>
-                                    <div class="form-group">
+                                    <div class="form-group full-width">
                                         <label class="form-label">Địa chỉ</label>
-                                        <!-- SỬA QUAN TRỌNG: Sử dụng $cleanDiaChi đã được xử lý thay vì $userInfo['DiaChi'] trực tiếp -->
-                                        <!-- Điều này ngăn chặn việc hiển thị JSON OTP trong ô địa chỉ -->
-                                        <input type="text" name="diachi" class="form-input <?php echo isset($errors['diachi']) ? 'error' : ''; ?>" 
-                                               value="<?php echo htmlspecialchars($cleanDiaChi); ?>"
-                                               placeholder="Nhập địa chỉ của bạn">
-                                        <!-- Hiển thị lỗi validation cho trường địa chỉ -->
-                                        <?php if(isset($errors['diachi'])): ?>
-                                            <span class="error-message show"><?php echo htmlspecialchars($errors['diachi']); ?></span>
-                                        <?php else: ?>
-                                            <span class="error-message" id="diachi-error"></span>
-                                        <?php endif; ?>
+                                        <textarea name="diachi" class="form-input" rows="3"><?php echo htmlspecialchars($userInfo['DiaChi'] ?? ''); ?></textarea>
                                     </div>
                                 </div>
                                 <div class="form-actions">
-                                    <!-- Nút submit cập nhật thông tin -->
                                     <button type="submit" name="btnUpdate" class="btn-primary">Cập nhật thông tin</button>
                                 </div>
                             </form>
                         </div>
                     </div>
 
-                    <!-- Card thống kê đơn hàng -->
                     <div class="profile-card">
                         <div class="card-header">
                             <h3>Thống kê đơn hàng</h3>
                         </div>
                         <div class="card-body">
+                            <?php
+                            // Truy vấn thống kê đơn hàng thực tế
+                            $statsSQL = "
+                                SELECT 
+                                    COUNT(*) as total_orders,
+                                    COALESCE(SUM(TongTien), 0) as total_spent,
+                                    (SELECT COUNT(*) FROM DanhGia WHERE MaUser = ?) as total_reviews
+                                FROM DonHang 
+                                WHERE MaUser = ?
+                            ";
+                            $stmt = mysqli_prepare($conn, $statsSQL);
+                            $stats = ['total_orders' => 0, 'total_spent' => 0, 'total_reviews' => 0];
+                            
+                            if($stmt) {
+                                mysqli_stmt_bind_param($stmt, "ii", $maUser, $maUser);
+                                mysqli_stmt_execute($stmt);
+                                $statsResult = mysqli_stmt_get_result($stmt);
+                                if($statsData = mysqli_fetch_assoc($statsResult)) {
+                                    $stats = $statsData;
+                                }
+                                mysqli_stmt_close($stmt);
+                            }
+                            ?>
                             <div class="stats-grid">
-                                <!-- Thống kê số đơn hàng -->
                                 <div class="stat-item">
                                     <div class="stat-icon">📦</div>
                                     <div class="stat-info">
-                                        <div class="stat-number">5</div>
+                                        <div class="stat-number"><?php echo $stats['total_orders']; ?></div>
                                         <div class="stat-label">Đơn hàng</div>
                                     </div>
                                 </div>
-                                <!-- Thống kê số đánh giá -->
                                 <div class="stat-item">
                                     <div class="stat-icon">⭐</div>
                                     <div class="stat-info">
-                                        <div class="stat-number">12</div>
+                                        <div class="stat-number"><?php echo $stats['total_reviews']; ?></div>
                                         <div class="stat-label">Đánh giá</div>
                                     </div>
                                 </div>
-                                <!-- Thống kê tổng chi tiêu -->
                                 <div class="stat-item">
                                     <div class="stat-icon">💰</div>
                                     <div class="stat-info">
-                                        <div class="stat-number">2.5M</div>
+                                        <div class="stat-number"><?php echo number_format($stats['total_spent'], 0, ',', '.'); ?>đ</div>
                                         <div class="stat-label">Đã chi tiêu</div>
                                     </div>
                                 </div>
@@ -288,8 +305,7 @@ $cleanDiaChi = getCleanAddress($userInfo['DiaChi'] ?? '');
             </div>
         </div>
     </div>
-
-    <!-- JavaScript xử lý frontend -->
+    
     <script src="js/ThongTinTaiKhoan.js"></script>
 </body>
 </html>

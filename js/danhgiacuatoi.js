@@ -1,7 +1,10 @@
-// JavaScript cho trang đánh giá của tôi
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Trang đánh giá đã tải xong');
     initializePage();
+    // Bắt sự kiện click để đóng modal khi click ra ngoài
+    document.addEventListener('click', handleOutsideClick);
+    // Bắt sự kiện phím ESC để đóng modal
+    document.addEventListener('keydown', handleEscapeKey);
 });
 
 function initializePage() {
@@ -15,10 +18,12 @@ function addReviewCardAnimations() {
     reviewCards.forEach(card => {
         card.addEventListener('mouseenter', function() {
             this.style.transform = 'translateY(-5px)';
+            this.style.boxShadow = '0 6px 15px rgba(0, 0, 0, 0.1)';
         });
         
         card.addEventListener('mouseleave', function() {
             this.style.transform = 'translateY(0)';
+            this.style.boxShadow = '0 4px 10px rgba(0, 0, 0, 0.05)';
         });
     });
     
@@ -31,11 +36,11 @@ function addReviewCardAnimations() {
             card.style.transition = 'all 0.5s ease';
             card.style.opacity = '1';
             card.style.transform = 'translateY(0)';
-        }, index * 200);
+        }, index * 100); // Giảm thời gian trễ cho mượt hơn
     });
 }
 
-// MODAL XÁC NHẬN XÓA ĐÁNH GIÁ
+// MODAL XÁC NHẬN XÓA ĐÁNH GIÁ (Hàm này được gọi từ deleteReview)
 function showDeleteConfirmModal(reviewId) {
     const modal = document.createElement('div');
     modal.className = 'modal-overlay';
@@ -76,14 +81,12 @@ function closeModal(button) {
     }
 }
 
-// Xác nhận xóa đánh giá
+// Xác nhận xóa đánh giá (Gửi AJAX POST)
 function confirmDeleteReview(reviewId, button) {
-    console.log('Xác nhận xóa đánh giá:', reviewId);
-    
     // Hiển thị loading trong modal
-    addLoadingEffect(button);
+    addLoadingEffect(button, '<span class="btn-icon">🗑️</span> Xác nhận xóa');
     
-    // Gửi request xóa đánh giá
+    // Gửi request xóa đánh giá (Đảm bảo đường dẫn đúng)
     fetch('ajax/xoa_danh_gia.php', {
         method: 'POST',
         headers: {
@@ -91,69 +94,56 @@ function confirmDeleteReview(reviewId, button) {
         },
         body: 'maDanhGia=' + reviewId
     })
-    .then(response => {
-        console.log('Response status:', response.status);
-        return response.text();
-    })
-    .then(text => {
-        console.log('Raw response từ server:', text);
-        
-        try {
-            const data = JSON.parse(text);
-            console.log('Dữ liệu JSON:', data);
+    .then(response => response.json())
+    .then(data => {
+        if(data.success) {
+            // Hiển thị thông báo thành công
+            showNotification('✅ ' + data.message, 'success');
+            closeModal(button);
             
-            if(data.success) {
-                // Hiển thị thông báo thành công
-                showNotification('✅ Xóa đánh giá thành công!', 'success');
-                closeModal(button);
-                
-                // Reload trang sau 1.5 giây
-                setTimeout(() => {
-                    location.reload();
-                }, 1500);
-            } else {
-                // Hiển thị thông báo lỗi
-                showNotification('❌ ' + data.message, 'error');
-                removeLoadingEffect(button, '<span class="btn-icon">🗑️</span> Xác nhận xóa');
-            }
-        } catch (e) {
-            console.error('Lỗi parse JSON:', e);
-            console.error('Nội dung response:', text);
-            showNotification('❌ Lỗi xử lý dữ liệu từ server', 'error');
-            removeLoadingEffect(button, '<span class="btn-icon">🗑️</span> Xác nhận xóa');
+            // Reload trang sau 1.5 giây
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
+        } else {
+            // Hiển thị thông báo lỗi
+            showNotification('❌ ' + data.message, 'error');
+            removeLoadingEffect(button);
         }
     })
     .catch(error => {
         console.error('Lỗi fetch:', error);
-        showNotification('❌ Lỗi kết nối: ' + error.message, 'error');
-        removeLoadingEffect(button, '<span class="btn-icon">🗑️</span> Xác nhận xóa');
+        showNotification('❌ Lỗi kết nối hoặc xử lý dữ liệu: ' + error.message, 'error');
+        removeLoadingEffect(button);
     });
 }
 
-// Hàm xóa đánh giá (gọi modal)
+// 🔥 Hàm xóa đánh giá (Đã sửa để gọi modal)
 function deleteReview(reviewId) {
     showDeleteConfirmModal(reviewId);
 }
 
-// Hàm sửa đánh giá
+// Hàm sửa đánh giá (Đã sửa để gọi modal)
 function editReview(reviewId) {
-    // Thêm hiệu ứng loading
+    const card = event.target.closest('.review-card');
     const button = event.target.closest('.btn-edit');
-    const originalText = button.innerHTML;
-    button.innerHTML = '<span class="btn-icon">⏳</span> Đang chuyển...';
-    button.disabled = true;
-    button.classList.add('btn-loading');
+
+    if (button) {
+        // Thêm hiệu ứng loading
+        addLoadingEffect(button, '<span class="btn-icon">✏️</span> Sửa');
+    }
     
     // Chuyển hướng đến trang chỉnh sửa đánh giá
     setTimeout(() => {
         window.location.href = 'SuaDanhGia.php?id=' + reviewId;
-    }, 500);
+    }, 300);
 }
 
 // Thêm hiệu ứng loading cho button
-function addLoadingEffect(button) {
-    const originalText = button.innerHTML;
-    button.setAttribute('data-original-text', originalText);
+function addLoadingEffect(button, originalText) {
+    if (!button.hasAttribute('data-original-text')) {
+        button.setAttribute('data-original-text', originalText || button.innerHTML);
+    }
     
     button.innerHTML = '<span class="btn-icon">⏳</span> Đang xử lý...';
     button.classList.add('btn-loading');
@@ -161,20 +151,20 @@ function addLoadingEffect(button) {
 }
 
 // Xóa hiệu ứng loading
-function removeLoadingEffect(button, originalText = null) {
-    const text = originalText || button.getAttribute('data-original-text');
+function removeLoadingEffect(button) {
+    const text = button.getAttribute('data-original-text');
     if (text) {
         button.innerHTML = text;
     }
     button.classList.remove('btn-loading');
     button.disabled = false;
+    button.removeAttribute('data-original-text');
 }
 
 // Hiển thị thông báo
 function showNotification(message, type = 'info') {
     // Xóa thông báo cũ nếu có
-    const oldNotifications = document.querySelectorAll('.notification');
-    oldNotifications.forEach(notif => notif.remove());
+    document.querySelectorAll('.notification').forEach(notif => notif.remove());
     
     // Tạo thông báo mới
     const notification = document.createElement('div');
@@ -197,7 +187,7 @@ function showNotification(message, type = 'info') {
 }
 
 // Xử lý phím ESC để đóng modal
-document.addEventListener('keydown', function(e) {
+function handleEscapeKey(e) {
     if (e.key === 'Escape') {
         const modals = document.querySelectorAll('.modal-overlay');
         modals.forEach(modal => {
@@ -205,12 +195,12 @@ document.addEventListener('keydown', function(e) {
             document.body.style.overflow = '';
         });
     }
-});
+}
 
 // Xử lý click outside modal để đóng
-document.addEventListener('click', function(e) {
+function handleOutsideClick(e) {
     if (e.target.classList.contains('modal-overlay')) {
         e.target.remove();
         document.body.style.overflow = '';
     }
-});
+}

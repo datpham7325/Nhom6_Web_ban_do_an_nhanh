@@ -1,4 +1,5 @@
 // JavaScript cho trang đơn hàng
+// 🔥 LƯU Ý: Hàm openReview đã được sửa để nhận tham số e (event)
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Trang đơn hàng đã tải xong');
     initializePage();
@@ -169,25 +170,19 @@ function showNotification(message, type = 'info') {
     }, 5000);
 }
 
-// Mở form đánh giá
-function openReview(orderId) {
-    showNotification('Mở form đánh giá cho đơn hàng #' + orderId, 'info');
+// 🔥 LƯU Ý: Hàm openReview đã được định nghĩa lại trong DonHang.php
+// Nếu bạn muốn dùng hàm này, hãy đảm bảo nó nhận 2 tham số: openReview(orderId, e)
+/*
+function openReview(orderId, e) {
+    const button = e.target.closest('.btn-review');
+    button.innerHTML = '<span class="btn-icon">⏳</span> Đang tải...';
+    button.disabled = true;
     
     setTimeout(() => {
-        const reviewModal = document.createElement('div');
-        reviewModal.className = 'review-modal';
-        reviewModal.innerHTML = `
-            <div class="modal-overlay">
-                <div class="modal-content">
-                    <h3>Đánh giá đơn hàng #${orderId}</h3>
-                    <p>Chức năng đánh giá đang được phát triển...</p>
-                    <button onclick="closeModal(this)">Đóng</button>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(reviewModal);
-    }, 1000);
+        window.location.href = 'TaoDanhGia.php?id=' + orderId;
+    }, 200);
 }
+*/
 
 // Xử lý phím ESC để đóng modal
 document.addEventListener('keydown', function(e) {

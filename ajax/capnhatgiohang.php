@@ -1,60 +1,86 @@
 <?php
+// 🔥 BẮT ĐẦU ĐỆM ĐẦU RA (OUTPUT BUFFERING)
+ob_start(); 
+
 session_start();
 include_once "../includes/myenv.php";
 
-if(!isset($_SESSION['loggedin'])) {
-    echo json_encode(['success' => false, 'message' => 'Vui lòng đăng nhập']);
+// Hàm tiện ích để gửi phản hồi JSON và thoát
+function sendResponse($data, $conn) {
+    ob_end_clean(); // Xóa sạch mọi output không mong muốn
+    header('Content-Type: application/json');
+    echo json_encode($data);
+    if ($conn && $conn !== false) {
+        mysqli_close($conn);
+    }
     exit();
+}
+
+// 1. Kiểm tra đăng nhập
+if(!isset($_SESSION['loggedin'])) {
+    sendResponse(['success' => false, 'message' => 'Vui lòng đăng nhập'], null);
 }
 
 $maUser = $_SESSION['MaUser'];
-$maBienThe = $_POST['mabienthe'];
-$soLuong = $_POST['soluong'];
+// 🔥 SỬA: Nhận MaGioHang (đã sửa trong JS)
+$maGioHang = $_POST['magiohang'] ?? null; 
+$soLuong = $_POST['soluong'] ?? null;
 
-// Validate input
-if(empty($maBienThe) || !is_numeric($maBienThe) || !is_numeric($soLuong)) {
-    echo json_encode(['success' => false, 'message' => 'Dữ liệu không hợp lệ']);
-    exit();
+// 2. Validate input
+if(empty($maGioHang) || !is_numeric($maGioHang)) {
+    sendResponse(['success' => false, 'message' => 'ID Giỏ hàng không hợp lệ'], null);
+}
+// Kiểm tra số lượng phải là số và không được trống
+if (!is_numeric($soLuong) || trim($soLuong) === '') {
+    sendResponse(['success' => false, 'message' => 'Số lượng phải là một giá trị số'], null);
 }
 
+// Chuyển đổi số lượng sang kiểu integer
+$soLuong = (int)$soLuong;
+$maGioHang = (int)$maGioHang; // Ép kiểu MaGioHang
+
+// 3. Kết nối Database
 $conn = mysqli_connect($db_host, $db_user, $db_password, $db_db, $db_port);
-
 if(!$conn) {
-    echo json_encode(['success' => false, 'message' => 'Lỗi kết nối database']);
-    exit();
+    sendResponse(['success' => false, 'message' => 'Lỗi kết nối database'], null);
 }
+mysqli_set_charset($conn, "utf8mb4");
 
+$stmt = null;
+$query_type = '';
+
+// 4. Logic cập nhật / xóa
 if($soLuong <= 0) {
     // Xóa item khỏi giỏ hàng
-    $deleteSQL = "DELETE FROM GioHang WHERE MaUser = ? AND MaBienThe = ?";
+    // 🔥 SỬA SQL: Dùng MaGioHang làm khóa chính để xóa
+    $deleteSQL = "DELETE FROM GioHang WHERE MaUser = ? AND MaGioHang = ?"; 
     $stmt = mysqli_prepare($conn, $deleteSQL);
-    mysqli_stmt_bind_param($stmt, "ii", $maUser, $maBienThe);
+    if ($stmt) {
+        mysqli_stmt_bind_param($stmt, "ii", $maUser, $maGioHang);
+        $query_type = 'DELETE';
+    }
 } else {
-    // Kiểm tra item có tồn tại không
-    $checkSQL = "SELECT * FROM GioHang WHERE MaUser = ? AND MaBienThe = ?";
-    $stmt = mysqli_prepare($conn, $checkSQL);
-    mysqli_stmt_bind_param($stmt, "ii", $maUser, $maBienThe);
-    mysqli_stmt_execute($stmt);
-    $checkResult = mysqli_stmt_get_result($stmt);
-    
-    if(mysqli_num_rows($checkResult) > 0) {
-        // Cập nhật số lượng
-        $updateSQL = "UPDATE GioHang SET SoLuong = ? WHERE MaUser = ? AND MaBienThe = ?";
-        $stmt = mysqli_prepare($conn, $updateSQL);
-        mysqli_stmt_bind_param($stmt, "iii", $soLuong, $maUser, $maBienThe);
-    } else {
-        // Thêm mới
-        $insertSQL = "INSERT INTO GioHang (MaUser, MaBienThe, SoLuong) VALUES (?, ?, ?)";
-        $stmt = mysqli_prepare($conn, $insertSQL);
-        mysqli_stmt_bind_param($stmt, "iii", $maUser, $maBienThe, $soLuong);
+    // Cập nhật số lượng
+    // 🔥 SỬA SQL: Dùng MaGioHang làm khóa chính để cập nhật
+    $updateSQL = "UPDATE GioHang SET SoLuong = ? WHERE MaUser = ? AND MaGioHang = ?";
+    $stmt = mysqli_prepare($conn, $updateSQL);
+    if ($stmt) {
+        mysqli_stmt_bind_param($stmt, "iii", $soLuong, $maUser, $maGioHang);
+        $query_type = 'UPDATE';
     }
 }
 
-if(mysqli_stmt_execute($stmt)) {
-    echo json_encode(['success' => true]);
-} else {
-    echo json_encode(['success' => false, 'message' => 'Lỗi cập nhật giỏ hàng']);
+// 5. Thực thi truy vấn cuối cùng
+if($stmt === false) {
+    sendResponse(['success' => false, 'message' => 'Lỗi chuẩn bị truy vấn cuối cùng.'], $conn);
 }
 
-mysqli_close($conn);
+if(mysqli_stmt_execute($stmt)) {
+    mysqli_stmt_close($stmt);
+    sendResponse(['success' => true, 'action' => $query_type], $conn);
+} else {
+    $error_message = 'Lỗi cập nhật giỏ hàng: ' . mysqli_stmt_error($stmt);
+    mysqli_stmt_close($stmt);
+    sendResponse(['success' => false, 'message' => $error_message], $conn);
+}
 ?>

@@ -1,0 +1,156 @@
+/* CSS bổ sung để căn chỉnh form Tạo Đánh Giá */
+.review-form-container { 
+    max-width: 900px; 
+    margin: 0 auto; 
+    padding: 20px; 
+}
+
+.form-section { 
+    background: #fff; 
+    padding: 25px; 
+    border-radius: 12px; 
+    margin-bottom: 20px; 
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); 
+}
+
+.item-list { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 15px; 
+}
+
+/* Style cho từng món ăn trong đơn hàng */
+.review-item { 
+    border: 1px solid #eee; 
+    padding: 15px; 
+    border-radius: 8px; 
+    transition: background-color 0.3s; 
+}
+
+.review-item.reviewed { 
+    background: #f1f3f5; /* Nền nhạt hơn cho món đã đánh giá */
+    border-color: #ced4da; 
+    opacity: 0.8; 
+}
+
+.review-item h4 { 
+    margin-top: 0; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    font-size: 1.1em; 
+}
+
+.review-item p { 
+    margin-bottom: 10px; 
+    font-size: 0.9em; 
+    color: #666; 
+}
+
+.review-item .status { 
+    font-weight: 600; 
+    color: #007bff; /* Màu xanh cho trạng thái */
+}
+
+.review-item.reviewed .status { 
+    color: #28a745; /* Màu xanh lá cho đã đánh giá */
+}
+
+/* Khu vực nhập số sao */
+.rating-input { 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+    margin-bottom: 15px; 
+}
+
+/* Kỹ thuật CSS để tạo hiệu ứng hover sao */
+.star-rating {
+    display: inline-block;
+    direction: rtl; /* Đảo ngược thứ tự sao */
+}
+
+.rating-input .star-label { 
+    cursor: pointer; 
+    font-size: 24px; 
+    color: #ccc; 
+    transition: color 0.2s; 
+    padding: 0 2px;
+}
+
+.rating-input input { 
+    display: none; 
+}
+
+/* Khi người dùng hover hoặc chọn, các sao trước đó cũng sáng lên (nhờ direction: rtl) */
+.star-rating > input:checked ~ .star-label, 
+.star-rating:not(:checked) > .star-label:hover, 
+.star-rating:not(:checked) > .star-label:hover ~ .star-label { 
+    color: #ffc107; 
+}
+
+/* Khu vực nội dung đánh giá */
+.textarea-container { 
+    margin-top: 10px; 
+}
+
+.review-textarea { 
+    width: 100%; 
+    padding: 10px; 
+    border: 1px solid #ccc; 
+    border-radius: 6px; 
+    min-height: 80px; 
+    resize: vertical; 
+}
+
+/* Footer và nút Gửi Đánh Giá */
+.action-footer { 
+    display: flex; 
+    justify-content: flex-end; 
+    padding-top: 20px; 
+    border-top: 1px solid #eee; 
+}
+
+.btn-submit { 
+    /* Tái sử dụng .btn-primary */
+    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+    color: #333; 
+    font-weight: 700; 
+    padding: 12px 25px; 
+    border: none; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    transition: all 0.3s; 
+    font-family: inherit;
+    font-size: 16px;
+}
+
+.btn-submit:hover:not(.btn-loading) { 
+    background: linear-gradient(135deg, #e0a800 0%, #c59300 100%);
+    transform: translateY(-2px); 
+    box-shadow: 0 6px 20px rgba(255, 193, 7, 0.4); 
+}
+
+/* Responsive cho màn hình nhỏ */
+@media (max-width: 576px) {
+    .review-form-container {
+        padding: 10px;
+    }
+    .form-section {
+        padding: 15px;
+    }
+    .rating-input {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    .review-item h4 {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+        text-align: left;
+    }
+    .btn-submit {
+        width: 100%;
+    }
+}

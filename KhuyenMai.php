@@ -118,7 +118,6 @@ $gridCombos = !empty($combos) ? array_slice($combos, 1) : [];
                             <p><?php echo nl2br(htmlspecialchars($featuredCombo['MoTa'])); ?></p>
                         </div>
                         <div class="price-section">
-                            <div class="original-price"><?php echo number_format($featuredCombo['DonGia'] * 1.3, 0, ',', '.'); ?> VND</div>
                             <div class="sale-price"><?php echo number_format($featuredCombo['DonGia'], 0, ',', '.'); ?> VND</div>
                             <div class="saving">Tiết kiệm ngay hôm nay!</div>
                         </div>
@@ -152,7 +151,6 @@ $gridCombos = !empty($combos) ? array_slice($combos, 1) : [];
                             </div>
                             <div class="promo-price">
                                 <div class="current-price"><?php echo number_format($combo['DonGia'], 0, ',', '.'); ?> VND</div>
-                                <div class="price-note">Giá gốc: <?php echo number_format($combo['DonGia'] * 1.2, 0, ',', '.'); ?> VND</div>
                             </div>
                             <form method="POST" action="KhuyenMai.php" class="add-to-cart-form">
                                 <input type="hidden" name="ma_bien_the" value="<?php echo $combo['MaBienThe']; ?>">

@@ -1,0 +1,218 @@
+/* Container chính */
+.container {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 15px;
+    font-family: 'Nunito', sans-serif;
+}
+
+/* Header trang */
+.page-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.page-header h1 {
+    color: #d32f2f;
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    font-weight: 900;
+}
+
+.page-header p {
+    color: #666;
+    font-size: 1.1rem;
+}
+
+/* Grid Layout (Chia cột) */
+.main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr; /* Cột trái nhỏ hơn cột phải */
+    gap: 40px;
+    align-items: start;
+}
+
+/* --- CỘT THÔNG TIN (Bên Trái) --- */
+.info-column {
+    background: #fff;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    border: 1px solid #eee;
+}
+
+.section-title {
+    color: #d32f2f;
+    border-bottom: 2px solid #f57c00;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    font-size: 1.3rem;
+    text-transform: uppercase;
+}
+
+.service-item {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.icon-box {
+    font-size: 2rem;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff3e0;
+    border-radius: 50%;
+    color: #f57c00;
+}
+
+.text-box h4 {
+    margin: 0 0 5px 0;
+    color: #333;
+    font-weight: 700;
+}
+
+.text-box p {
+    margin: 0;
+    color: #666;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.note-box {
+    background: #fff8e1;
+    padding: 20px;
+    border-radius: 10px;
+    border-left: 4px solid #ffc107;
+    margin-top: 30px;
+}
+
+.note-title {
+    color: #f57c00;
+    margin: 0 0 10px 0;
+    font-size: 1rem;
+}
+
+.note-list {
+    margin: 0;
+    padding-left: 20px;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.note-list li {
+    margin-bottom: 5px;
+}
+
+/* --- CỘT FORM (Bên Phải) --- */
+.form-column {
+    background: #fff;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(211, 47, 47, 0.1); /* Shadow đỏ nhạt */
+    border-top: 5px solid #d32f2f;
+}
+
+/* Form Styles */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.form-input, .form-select, .form-textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: all 0.3s;
+    box-sizing: border-box; /* Quan trọng để không vỡ layout */
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: #f57c00;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(245, 124, 0, 0.1);
+}
+
+.form-textarea {
+    resize: vertical;
+}
+
+/* Nút Submit */
+.submit-btn {
+    width: 100%;
+    padding: 15px;
+    background: #d32f2f; /* Màu đỏ chủ đạo */
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.3s;
+    text-transform: uppercase;
+    margin-top: 10px;
+}
+
+.submit-btn:hover {
+    background: #b71c1c; /* Đỏ đậm hơn khi hover */
+}
+
+/* Alert Messages */
+.alert {
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.alert-success {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #c8e6c9;
+}
+
+.alert-error {
+    background: #ffebee;
+    color: #c62828;
+    border: 1px solid #ffcdd2;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .main-grid {
+        grid-template-columns: 1fr; /* Chuyển thành 1 cột trên mobile */
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr; /* Input nằm dọc trên mobile */
+        gap: 0;
+    }
+    
+    .info-column {
+        order: 2; /* Đẩy thông tin xuống dưới */
+    }
+    
+    .form-column {
+        order: 1; /* Form lên trên */
+    }
+}

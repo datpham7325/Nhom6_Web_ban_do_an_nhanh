@@ -81,9 +81,9 @@ if (!$conn) {
                         // Định dạng giá tiền theo kiểu Việt Nam
                         echo "<td class='item-price'>".number_format($item['DonGia'], 0, ",", ".")." VND</td>";
                         echo "<td class='item-quantity'>";
-                        // Input số lượng với chức năng cập nhật real-time
+                        // 🔥 SỬA: Thêm 'this' vào onchange
                         echo "<input type='number' value='{$item['SoLuong']}' min='1' 
-                                    onchange='updateCart({$item['MaGioHang']}, this.value)'>";
+                                    onchange='updateCart({$item['MaGioHang']}, this.value, this)'>";
                         echo "</td>";
                         echo "<td class='item-total'>".number_format($thanhtien, 0, ",", ".")." VND</td>";
                         echo "<td class='item-actions'>";
@@ -122,7 +122,6 @@ if (!$conn) {
         </div>
     </div>
 
-    <!-- Modal xác nhận xóa sản phẩm -->
     <div id="confirmModal" class="modal confirm-modal">
         <div class="modal-content confirm-content">
             <div class="confirm-header">
@@ -139,7 +138,6 @@ if (!$conn) {
         </div>
     </div>
 
-    <!-- Overlay cho modal -->
     <div class="overlay" onclick="closeConfirmModal()"></div>
 
     <script src="js/GioHang.js"></script>

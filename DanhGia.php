@@ -1,7 +1,15 @@
 <?php
-include_once "includes/header.php";
+// SỬA LỖI NOTICE: Chỉ gọi session_start() nếu session chưa được khởi động
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+// 🔥 BẮT ĐẦU ĐỆM ĐẦU RA
+ob_start();
 
-// Kiểm tra trạng thái đăng nhập của người dùng
+// Giả sử file này chứa kết nối $conn
+include_once "includes/header.php"; 
+
+// Kiểm tra trạng thái đăng nhập
 if (!isset($_SESSION['loggedin'])) {
     header("Location: DangNhap.php");
     exit();
@@ -10,55 +18,25 @@ if (!isset($_SESSION['loggedin'])) {
 // Lấy mã người dùng từ session
 $maUser = $_SESSION['MaUser'];
 
-// Kiểm tra và tạo bảng danh_gia nếu chưa tồn tại
-$checkTableSQL = "SHOW TABLES LIKE 'danh_gia'";
-$tableResult = mysqli_query($conn, $checkTableSQL);
-
-// Nếu bảng chưa tồn tại, tạo bảng mới
-if (mysqli_num_rows($tableResult) == 0) {
-    $createTableSQL = "CREATE TABLE danh_gia (
-        MaDanhGia INT AUTO_INCREMENT PRIMARY KEY,
-        MaUser INT NOT NULL,
-        MaMonAn INT NOT NULL,
-        SoSao INT NOT NULL CHECK (SoSao BETWEEN 1 AND 5),
-        NoiDung TEXT,
-        NgayDanhGia DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (MaUser) REFERENCES users(MaUser) ON DELETE CASCADE,
-        FOREIGN KEY (MaMonAn) REFERENCES monan(MaMonAn) ON DELETE CASCADE
-    )";
-
-    // Thực hiện tạo bảng và thêm dữ liệu mẫu
-    if (mysqli_query($conn, $createTableSQL)) {
-        $sampleDataSQL = "INSERT INTO danh_gia (MaUser, MaMonAn, SoSao, NoiDung) VALUES 
-            (?, 1, 5, 'Gà giòn rất ngon, da giòn thịt mềm. Sẽ quay lại ủng hộ!'),
-            (?, 10, 4, 'Mì Ý sốt cay vừa miệng, hương vị đậm đà. Rất đáng thử!')";
-
-        $stmt = mysqli_prepare($conn, $sampleDataSQL);
-        mysqli_stmt_bind_param($stmt, "ii", $maUser, $maUser);
-        mysqli_stmt_execute($stmt);
-        mysqli_stmt_close($stmt);
-    }
-}
-
-// Truy vấn lấy tất cả đánh giá của người dùng hiện tại
-$reviewsSQL = "SELECT dg.*, m.TenMonAn, m.HinhAnh 
-              FROM danh_gia dg 
-              JOIN monan m ON dg.MaMonAn = m.MaMonAn 
+// ⚠️ CẬP NHẬT SQL: Lấy thông tin từ bảng DonHang thay vì MonAn
+// Join bảng DanhGia với DonHang để lấy Ngày đặt và Tổng tiền
+$reviewsSQL = "SELECT dg.*, dh.NgayDat, dh.TongTien, dh.TrangThai as TrangThaiDonHang
+              FROM DanhGia dg 
+              JOIN DonHang dh ON dg.MaDonHang = dh.MaDonHang 
               WHERE dg.MaUser = ? 
-              ORDER BY dg.NgayDanhGia DESC";
+              ORDER BY dg.NgayTao DESC";
+
 $stmt = mysqli_prepare($conn, $reviewsSQL);
 
-// Kiểm tra lỗi khi chuẩn bị câu lệnh
+// Kiểm tra lỗi chuẩn bị
 if ($stmt === false) {
     die("Lỗi chuẩn bị câu lệnh: " . mysqli_error($conn));
 }
 
-// Thực thi truy vấn với tham số mã người dùng
 mysqli_stmt_bind_param($stmt, "i", $maUser);
 mysqli_stmt_execute($stmt);
 $reviewsResult = mysqli_stmt_get_result($stmt);
 
-// Kiểm tra lỗi khi thực thi truy vấn
 if (!$reviewsResult) {
     die("Lỗi thực thi câu lệnh: " . mysqli_error($conn));
 }
@@ -70,8 +48,127 @@ if (!$reviewsResult) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đánh Giá Của Tôi</title>
-    <link rel="stylesheet" href="css/danhgiacuatoi.css">
+    <title>Lịch Sử Đánh Giá</title>
+    <link rel="stylesheet" href="css/danhgiacuatoi.css"> 
+    <style>
+        /* CSS cho Modal và Notification (thêm vào file CSS chính của bạn) */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.3s;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #aaa;
+        }
+        .modal-body {
+            text-align: center;
+        }
+        .warning-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        .warning-text {
+            color: #d9534f;
+            font-weight: bold;
+        }
+        .modal-actions {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        .btn-delete-confirm, .btn-back {
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: background-color 0.3s;
+        }
+        .btn-delete-confirm {
+            background-color: #d9534f;
+            color: white;
+            border: none;
+        }
+        .btn-delete-confirm:hover {
+            background-color: #c9302c;
+        }
+        .btn-back {
+            background-color: #f0f0f0;
+            color: #333;
+            border: 1px solid #ccc;
+        }
+        .btn-back:hover {
+            background-color: #e0e0e0;
+        }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 5px;
+            color: white;
+            z-index: 1001;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            animation: slideIn 0.5s forwards;
+            display: flex;
+            align-items: center;
+        }
+        .notification-success {
+            background-color: #5cb85c;
+        }
+        .notification-error {
+            background-color: #d9534f;
+        }
+        .notification-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            margin-left: 15px;
+            cursor: pointer;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideIn {
+            from { right: -300px; opacity: 0; }
+            to { right: 20px; opacity: 1; }
+        }
+        .btn-loading {
+            opacity: 0.7;
+            cursor: wait;
+        }
+    </style>
 </head>
 
 <body>
@@ -79,86 +176,72 @@ if (!$reviewsResult) {
 
     <div class="container">
         <div class="page-header">
-            <h1>ĐÁNH GIÁ CỦA TÔI</h1>
-            <p>Xem và quản lý đánh giá của bạn</p>
+            <h1>LỊCH SỬ ĐÁNH GIÁ</h1>
+            <p>Xem lại các đánh giá về đơn hàng của bạn</p>
         </div>
 
         <div class="content-container">
-            <!-- Hiển thị thông báo thành công nếu có -->
             <?php if (isset($_SESSION['review_success'])): ?>
                 <div class="alert alert-success">
-                    <?php echo $_SESSION['review_success'];
-                    unset($_SESSION['review_success']); ?>
+                    <?php echo $_SESSION['review_success']; unset($_SESSION['review_success']); ?>
                 </div>
             <?php endif; ?>
 
-            <!-- Hiển thị thông báo lỗi nếu có -->
             <?php if (isset($_SESSION['review_error'])): ?>
                 <div class="alert alert-danger">
-                    <?php echo $_SESSION['review_error'];
-                    unset($_SESSION['review_error']); ?>
+                    <?php echo $_SESSION['review_error']; unset($_SESSION['review_error']); ?>
                 </div>
             <?php endif; ?>
 
-            <!-- Kiểm tra xem có đánh giá nào không -->
             <?php if (mysqli_num_rows($reviewsResult) > 0): ?>
                 <div class="reviews-container">
-                    <!-- Lặp qua từng đánh giá và hiển thị -->
                     <?php while ($review = mysqli_fetch_assoc($reviewsResult)): ?>
                         <div class="review-card">
                             <div class="review-header">
                                 <div class="review-info">
                                     <div class="review-product">
-                                        <strong><?php echo $review['TenMonAn']; ?></strong>
+                                        <strong>Đơn hàng #<?php echo $review['MaDonHang']; ?></strong>
                                     </div>
                                     <div class="review-date">
-                                        <!-- Hiển thị ngày đánh giá đã định dạng -->
-                                        <?php echo date('d/m/Y H:i', strtotime($review['NgayDanhGia'])); ?>
+                                        Đánh giá ngày: <?php echo date('d/m/Y H:i', strtotime($review['NgayTao'])); ?>
                                     </div>
                                 </div>
                                 <div class="review-rating">
-                                    <!-- Hiển thị số sao đánh giá -->
+                                    <?php $diem = $review['Diem'] ?? 0; ?>
                                     <?php for ($i = 1; $i <= 5; $i++): ?>
-                                        <span class="star <?php echo $i <= $review['SoSao'] ? 'active' : ''; ?>">⭐</span>
+                                        <span class="star <?php echo $i <= $diem ? 'active' : ''; ?>">⭐</span>
                                     <?php endfor; ?>
-                                    <span class="rating-score"><?php echo $review['SoSao']; ?>/5</span>
+                                    <span class="rating-score"><?php echo $diem; ?>/5</span>
                                 </div>
                             </div>
 
                             <div class="review-content">
                                 <div class="review-details">
                                     <div class="detail-item">
-                                        <span class="label">Món ăn:</span>
-                                        <span class="value"><?php echo $review['TenMonAn']; ?></span>
+                                        <span class="label">Ngày đặt:</span>
+                                        <span class="value"><?php echo date('d/m/Y H:i', strtotime($review['NgayDat'])); ?></span>
                                     </div>
                                     <div class="detail-item">
-                                        <span class="label">Số sao:</span>
-                                        <span class="value">
-                                            <?php echo $review['SoSao']; ?> sao
-                                            <span class="stars-preview">
-                                                <!-- Hiển thị số sao dạng preview nhỏ -->
-                                                <?php for ($i = 1; $i <= 5; $i++): ?>
-                                                    <span class="star-small <?php echo $i <= $review['SoSao'] ? 'active' : ''; ?>">⭐</span>
-                                                <?php endfor; ?>
-                                            </span>
-                                        </span>
+                                        <span class="label">Tổng tiền:</span>
+                                        <span class="value"><?php echo number_format($review['TongTien'], 0, ',', '.'); ?> đ</span>
                                     </div>
                                     <div class="detail-item full-width">
                                         <span class="label">Nội dung:</span>
-                                        <!-- Hiển thị nội dung đánh giá, sử dụng htmlspecialchars để bảo mật -->
-                                        <span class="value"><?php echo htmlspecialchars($review['NoiDung']); ?></span>
+                                        <span class="value" style="font-style: italic;">
+                                            "<?php echo htmlspecialchars($review['NoiDung']); ?>"
+                                        </span>
                                     </div>
+
                                 </div>
 
-                                <!-- Các nút hành động cho đánh giá -->
                                 <div class="review-actions">
-                                    <button class="btn-edit" onclick="editReview(<?php echo $review['MaDanhGia']; ?>)">
+                                    <button class="btn-edit" onclick="editReview(<?php echo $review['MaDanhGia']; ?>)"> 
                                         <span class="btn-icon">✏️</span>
-                                        Sửa đánh giá
+                                        Sửa
                                     </button>
-                                    <button class="btn-delete" onclick="showDeleteConfirmModal(<?php echo $review['MaDanhGia']; ?>)">
+                                    <button class="btn-delete" onclick="deleteReview(<?php echo $review['MaDanhGia']; ?>)">
                                         <span class="btn-icon">🗑️</span>
-                                        Xóa đánh giá
+                                        Xóa
                                     </button>
                                 </div>
                             </div>
@@ -166,29 +249,28 @@ if (!$reviewsResult) {
                     <?php endwhile; ?>
                 </div>
             <?php else: ?>
-                <!-- Hiển thị khi không có đánh giá nào -->
                 <div class="empty-reviews">
-                    <div class="empty-icon">⭐</div>
+                    <div class="empty-icon">🧾</div>
                     <h3>Chưa có đánh giá nào</h3>
-                    <p>Hãy đánh giá các món ăn bạn đã thưởng thức!</p>
+                    <p>Hãy đặt hàng và chia sẻ trải nghiệm của bạn!</p>
                     <a href="ThucDon.php" class="btn-primary">
                         <span class="btn-icon">🛒</span>
-                        Mua sắm ngay
+                        Đặt món ngay
                     </a>
                 </div>
             <?php endif; ?>
         </div>
     </div>
 
-    <script src="js/danhgiacuatoi.js"></script>
     <?php include_once "includes/footer.php"; ?>
+    <script src="js/danhgiacuatoi.js"></script> 
 </body>
 
 </html>
 
 <?php
-// Đóng statement để giải phóng tài nguyên
 if ($stmt) {
     mysqli_stmt_close($stmt);
 }
+ob_end_flush();
 ?>

@@ -35,42 +35,54 @@ function showRemoveConfirm(maGioHang, tenMon) {
 }
 
 // Hàm cập nhật số lượng trong giỏ hàng
-function updateCart(maGioHang, soLuong) {
+function updateCart(maGioHang, soLuong, inputElement) {
+    // Ép kiểu số lượng về số nguyên
+    soLuong = parseInt(soLuong);
+    
     if (soLuong < 1) {
-        alert('Số lượng phải lớn hơn 0');
-        location.reload();
+        // Nếu số lượng âm hoặc 0, ta không cập nhật mà chuyển sang xác nhận xóa
+        showRemoveConfirm(maGioHang, inputElement.closest('tr').querySelector('.item-name').textContent);
+        inputElement.value = 1; // Giữ nguyên giá trị cũ trên UI
         return;
     }
     
-    // Hiển thị loading
-    const input = event.target;
+    const input = inputElement;
     const originalValue = input.value;
     input.disabled = true;
     
-    fetch('ajax/capnhatgiohang.php', {
+    fetch('ajax/capnhatgiohang.php', { 
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: 'magiohang=' + maGioHang + '&soluong=' + soLuong
+        // 🔥 GỬI DỮ LIỆU ĐỒNG BỘ: magiohang và soluong
+        body: 'magiohang=' + maGioHang + '&soluong=' + soLuong 
     })
     .then(response => {
         if (!response.ok) {
-            throw new Error('Network response was not ok');
+            // Đọc phản hồi text để debug lỗi HTTP
+            return response.text().then(text => { 
+                console.error('Server Text Response:', text);
+                throw new Error('Lỗi HTTP (' + response.status + '). Vui lòng kiểm tra log.');
+            });
         }
         return response.json();
     })
     .then(data => {
         if(data.success) {
+            // Tải lại trang sau khi cập nhật thành công để refresh giá và tổng tiền
             location.reload();
         } else {
-            alert('Lỗi cập nhật giỏ hàng: ' + (data.message || ''));
-            input.value = originalValue;
+            // Lỗi validation từ PHP
+            alert('Lỗi cập nhật giỏ hàng: ' + (data.message || 'Lỗi không xác định'));
+            input.value = originalValue; // Khôi phục giá trị cũ
         }
     })
     .catch(error => {
-        alert('Lỗi kết nối: ' + error);
-        input.value = originalValue;
+        // Lỗi kết nối hoặc lỗi JSON parse
+        console.error('Lỗi AJAX:', error);
+        alert('Lỗi kết nối hoặc xử lý dữ liệu: ' + error.message);
+        input.value = originalValue; // Khôi phục giá trị cũ
     })
     .finally(() => {
         input.disabled = false;
@@ -94,7 +106,7 @@ function removeFromCart(maGioHang) {
     })
     .then(response => {
         if (!response.ok) {
-            throw new Error('Network response was not ok');
+            return response.text().then(text => { throw new Error(text); });
         }
         return response.json();
     })
@@ -168,14 +180,23 @@ document.addEventListener('DOMContentLoaded', function() {
     
     quantityInputs.forEach(input => {
         input.addEventListener('blur', function() {
-            if (this.value === '' || this.value < 1) {
+            // Nếu giá trị là rỗng hoặc không phải số, đặt lại thành 1
+            if (this.value === '' || this.value < 1 || isNaN(parseInt(this.value))) {
                 this.value = 1;
+                // Kích hoạt cập nhật nếu giá trị bị sửa thành 1
+                if (this.value !== this.defaultValue) {
+                    this.dispatchEvent(new Event('change'));
+                }
             }
         });
         
         input.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 this.blur();
+                // Kích hoạt onchange nếu giá trị thay đổi
+                if (this.value !== this.defaultValue) {
+                    this.dispatchEvent(new Event('change'));
+                }
             }
         });
     });

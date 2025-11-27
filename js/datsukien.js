@@ -1,8 +1,6 @@
 /**
  * FILE: datsukien.js
  * MÔ TẢ: Xử lý các tương tác JavaScript cho trang đặt sự kiện
- * TÁC GIẢ: [Your Name]
- * NGÀY: [Current Date]
  */
 
 // Chờ cho DOM load xong
@@ -96,7 +94,10 @@ function validateEventDateTime() {
     const gioBatDauInput = document.querySelector('input[name="giobatdau"]');
     const gioKetThucInput = document.querySelector('input[name="gioketthuc"]');
     
-    if (!ngaySuKienInput || !gioBatDauInput || !gioKetThucInput) return true;
+    if (!ngaySuKienInput || !gioBatDauInput || !gioKetThucInput) {
+        console.log('Missing date/time inputs - skipping validation');
+        return true; // Không có input thì bỏ qua validation
+    }
     
     const selectedDate = new Date(ngaySuKienInput.value);
     const selectedStartTime = gioBatDauInput.value;
@@ -141,6 +142,7 @@ function validateEventDateTime() {
  * @returns {number} - Tổng số phút
  */
 function timeToMinutes(timeString) {
+    if (!timeString) return 0;
     const [hours, minutes] = timeString.split(':').map(Number);
     return hours * 60 + minutes;
 }
@@ -216,23 +218,23 @@ function initEventTypeEffects() {
             // Gợi ý tự động dựa trên loại sự kiện
             switch(selectedValue) {
                 case 'sinh_nhat':
-                    suggestion = 'Gợi ý: Trang trí theo chủ đề, bánh sinh nhật, quà tặng cho trẻ em...';
+                    suggestion = 'Gợi ý: Trang trí theo chủ đề, bánh sinh nhật, quà tặng cho trẻ em, khu vực chụp ảnh...';
                     break;
                 case 'hoi_nghi':
-                    suggestion = 'Gợi ý: Máy chiếu, bàn ghế hội nghị, tea break, ghi âm...';
+                    suggestion = 'Gợi ý: Máy chiếu, bàn ghế hội nghị, tea break, ghi âm, wifi tốc độ cao...';
                     break;
                 case 'tiec_cuoi':
-                    suggestion = 'Gợi ý: Hoa cưới, bánh cưới, trang trí lãng mạn, nhạc nền...';
+                    suggestion = 'Gợi ý: Hoa cưới, bánh cưới, trang trí lãng mạn, nhạc nền, photographer...';
                     break;
                 case 'gia_dinh':
-                    suggestion = 'Gợi ý: Menu gia đình, khu vực vui chơi trẻ em, không gian ấm cúng...';
+                    suggestion = 'Gợi ý: Menu gia đình, khu vực vui chơi trẻ em, không gian ấm cúng, âm nhạc nhẹ nhàng...';
                     break;
                 default:
-                    suggestion = '';
+                    suggestion = 'Mô tả yêu cầu cụ thể của bạn...';
             }
             
             // Hiển thị gợi ý dưới dạng placeholder
-            if (suggestion && !yeuCauTextarea.value) {
+            if (suggestion) {
                 yeuCauTextarea.placeholder = suggestion;
             }
         });
