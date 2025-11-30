@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,266 +10,262 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
+
 <body>
     <?php include_once "includes/header2.php"; ?>
 
+    <!-- Kiểm tra user -->
     <?php
+    // Kiểm tra xem session đã có MaUser chưa
+    if (isset($_SESSION['MaUser'])) {
+        $maUserCheck = $_SESSION['MaUser'];
+
+        // Truy vấn lấy QuyenHan hiện tại từ CSDL
+        $sqlRole = "SELECT QuyenHan FROM Users WHERE MaUser = ?";
+        $stmtRole = mysqli_prepare($conn, $sqlRole);
+
+        if ($stmtRole) {
+            mysqli_stmt_bind_param($stmtRole, "i", $maUserCheck);
+            mysqli_stmt_execute($stmtRole);
+            $resultRole = mysqli_stmt_get_result($stmtRole);
+            $userRole = mysqli_fetch_assoc($resultRole);
+
+            // Kiểm tra logic:
+            // 1. Không tìm thấy user trong DB
+            // 2. Hoặc QuyenHan không phải là 'admin'
+            if (!$userRole || $userRole['QuyenHan'] !== 'admin') {
+                header("Location: index.php");
+                exit();
+            }
+        } else {
+            // Lỗi câu lệnh SQL thì cũng cho về index để an toàn
+            header("Location: DangNhap.php");
+            exit();
+        }
+    } else {
+        // Chưa đăng nhập thì chuyển hướng về index
+        header("Location: DangNhap.php");
+        exit();
+    }
+    ?>
+
+    <?php
+    include_once("includes/myenv.php");
+    $conn = mysqli_connect($db_host, $db_user, $db_password, $db_db, $db_port);
+    if (!$conn) {
+        die("Connection failed: " . mysqli_connect_error());
+    }
+
+    ?>
+
+    <?php
+    if (isset($_POST['btnaddnew'])) {
+        $tenMonAn = $_POST['tenmonan'];
+
+        //Xử lý coppy hình ảnh vào folder img mặc định để lưu trữ
+        $hinhAnh = "";
+        if (isset($_FILES['hinhanh']) && $_FILES['hinhanh']['error'] == 0) {
+            $target_dir = "img/";
+            $target_file = $target_dir . basename($_FILES["hinhanh"]["name"]);
+            if (move_uploaded_file($_FILES["hinhanh"]["tmp_name"], $target_file)) {
+                $hinhAnh = basename($_FILES["hinhanh"]["name"]);
+            }
+        }
+
+        $maLoai = $_POST['loaimonan'];
+        $maSize = $_POST['size'];
+        $donGia = $_POST['gia'];
+        $moTa = $_POST['mota'];
+
+        // Thêm món ăn vào bảng monan
+        $strSQL_Insert_MonAn = "INSERT INTO monan (TenMonAn, HinhAnh, MoTa, MaLoai) 
+                                    VALUES ('$tenMonAn', '$hinhAnh', '$moTa', '$maLoai')";
+
+        if (mysqli_query($conn, $strSQL_Insert_MonAn)) {
+            // Lấy MaMonAn vừa thêm để thêm vào bảng bienthemonan
+            $maMonAn_New = mysqli_insert_id($conn);
+
+            // Thêm biến thể món ăn vào bảng bienthemonan
+            $strSQL_Insert_BienTheMonAn = "INSERT INTO bienthemonan (MaMonAn, MaSize, DonGia) 
+                                                VALUES ('$maMonAn_New', '$maSize', '$donGia')";
+
+            if (mysqli_query($conn, $strSQL_Insert_BienTheMonAn)) {
+                // Thành công
+                echo "<p class='success-message'>Thêm món ăn thành công!</p>";
+            } else {
+                // Thất bại khi thêm biến thể
+                echo "Lỗi khi thêm biến thể: " . mysqli_error($conn);
+            }
+        } else {
+            // Thất bại khi thêm món ăn
+            echo "Lỗi khi thêm món ăn: " . mysqli_error($conn);
+        }
+    }
+
+    if (isset($_POST['btnback'])) {
+        $page = isset($_REQUEST['page']) ? (int)$_REQUEST['page'] : 1;
+        header("Location: home.php?page=$page");
+        exit();
+    }
+    ?>
+
+    <?php
+    // Chuẩn hóa mã
+    function ChuanHoaMa($mma)
+    {
+        $kq = str_pad($mma, 3, '0', STR_PAD_LEFT);
+        return $kq;
+    }
+
+    //Hàm xử lý kích thước món ăn
+    function SizeMonAn($size)
+    {
         $hostname = "localhost";
         $username = "root";
         $password = "";
-        $dbname = "quanly_cua_hang";
+        $database = "quanly_cua_hang";
 
-        $conn = mysqli_connect($hostname, $username, $password, $dbname);
-        if (!$conn) {
-            die("Connection failed: " . mysqli_connect_error());
-        }
-        
-    ?>
+        $conn = mysqli_connect($hostname, $username, $password, $database);
+        $strSQL_Size = "SELECT * FROM kichthuoc";
+        $result_Size = mysqli_query($conn, $strSQL_Size);
 
-    <?php 
-        if (isset($_POST['btnaddnew'])) 
-        {
-            $tenMonAn = $_POST['tenmonan'];
-            
-            //Xử lý coppy hình ảnh vào folder img mặc định để lưu trữ
-            $hinhAnh = "";
-            if (isset($_FILES['hinhanh']) && $_FILES['hinhanh']['error'] == 0) 
-            {
-                $target_dir = "img/";
-                $target_file = $target_dir . basename($_FILES["hinhanh"]["name"]);
-                if (move_uploaded_file($_FILES["hinhanh"]["tmp_name"], $target_file)) {
-                    $hinhAnh = basename($_FILES["hinhanh"]["name"]);
-                }
-            }
-
-            $maLoai = $_POST['loaimonan'];
-            $maSize = $_POST['size'];
-            $donGia = $_POST['gia'];
-            $moTa = $_POST['mota'];
-
-            // Thêm món ăn vào bảng monan
-            $strSQL_Insert_MonAn = "INSERT INTO monan (TenMonAn, HinhAnh, MoTa, MaLoai) 
-                                    VALUES ('$tenMonAn', '$hinhAnh', '$moTa', '$maLoai')";
-            
-            if (mysqli_query($conn, $strSQL_Insert_MonAn)) 
-            {
-                // Lấy MaMonAn vừa thêm để thêm vào bảng bienthemonan
-                $maMonAn_New = mysqli_insert_id($conn);
-
-                // Thêm biến thể món ăn vào bảng bienthemonan
-                $strSQL_Insert_BienTheMonAn = "INSERT INTO bienthemonan (MaMonAn, MaSize, DonGia) 
-                                                VALUES ('$maMonAn_New', '$maSize', '$donGia')";
-                
-                if (mysqli_query($conn, $strSQL_Insert_BienTheMonAn)) 
-                {
-                    // Thành công
-                    echo "<p class='success-message'>Thêm món ăn thành công!</p>";
-                } 
-                else 
-                {
-                    // Thất bại khi thêm biến thể
-                    echo "Lỗi khi thêm biến thể: " . mysqli_error($conn);
-                }
-            } 
-            else 
-            {
-                // Thất bại khi thêm món ăn
-                echo "Lỗi khi thêm món ăn: " . mysqli_error($conn);
-            }
-        }
-        
-        if( isset($_POST['btnback']) )
-        {
-            $page = isset($_REQUEST['page']) ? (int)$_REQUEST['page'] : 1;
-            header("Location: home.php?page=$page");
-            exit();
-        }
-    ?>
-
-    <?php 
-        // Chuẩn hóa mã
-        function ChuanHoaMa($mma)
-        {
-            $kq = str_pad($mma, 3, '0', STR_PAD_LEFT);
-            return $kq;
-        }
-
-        //Hàm xử lý kích thước món ăn
-        function SizeMonAn($size)
-        {
-            $hostname = "localhost";
-            $username = "root";
-            $password = "";
-            $database = "quanly_cua_hang";
-
-            $conn = mysqli_connect($hostname, $username, $password, $database);
-            $strSQL_Size = "SELECT * FROM kichthuoc";
-            $result_Size = mysqli_query($conn, $strSQL_Size);
-
-            while( mysqli_num_rows($result_Size)>0 )
-            {
-                if( $row = mysqli_fetch_assoc($result_Size) )
-                {
-                    if( $size == $row['MaSize'] )
-                    {
-                        $kq = $row['TenSize'];
-                        break;
-                    }
-                }
-            }
-
-            return $kq;
-        }
-
-        //Xử lý list chọn size món
-        $sizeList = [];
-        $strSQL_AllSize = "SELECT MaSize FROM kichthuoc";
-        $resultAllSize = mysqli_query($conn, $strSQL_AllSize);
-
-        if(mysqli_num_rows($resultAllSize) > 0)
-        {
-            while($r = mysqli_fetch_assoc($resultAllSize))
-            {
-                $sizeList[] = $r['MaSize']; // Lưu tất cả size vào mảng
-            }
-        }
-
-        //Xử lý nút thêm size mới
-        if( isset($_REQUEST['tensize']) )
-        {
-            if(isset($_REQUEST['tensize']) && ($_REQUEST['tensize']) != "")
-            {
-                $tenSize = $_REQUEST['tensize'];
-
-                $strSQL_tenSize = "INSERT INTO kichthuoc(TenSize) VALUES('$tenSize')";
-                $result_Insert_tenSize = mysqli_query($conn, $strSQL_tenSize);
-
-                if( $result_Insert_tenSize )
-                {
-                    header("Location: insert.php?mabienthe=$maBienThe");
-                    exit();
+        while (mysqli_num_rows($result_Size) > 0) {
+            if ($row = mysqli_fetch_assoc($result_Size)) {
+                if ($size == $row['MaSize']) {
+                    $kq = $row['TenSize'];
+                    break;
                 }
             }
         }
 
-        // Nút xóa size
-        if(isset($_REQUEST['btnDeleteSize'])) 
-        {
-            $sizeToDelete = $_REQUEST['size'];
+        return $kq;
+    }
 
-            // Kiểm tra xem size có đang được sử dụng trong BienTheMonAn không
-            $checkSQL = "SELECT COUNT(*) AS cnt FROM BienTheMonAn WHERE MaSize = '$sizeToDelete'";
-            $resCheck = mysqli_query($conn, $checkSQL);
-            $rowCheck = mysqli_fetch_assoc($resCheck);
+    //Xử lý list chọn size món
+    $sizeList = [];
+    $strSQL_AllSize = "SELECT MaSize FROM kichthuoc";
+    $resultAllSize = mysqli_query($conn, $strSQL_AllSize);
 
-            if($rowCheck['cnt'] > 0) 
-            {
-                // nếu size đang được dùng
-                echo "Không thể xóa size này vì đang có biến thể món ăn sử dụng.";
-            } 
-            else 
-            {
-                // nếu size chưa được dùng, tiến hành xóa
-                $deleteSQL = "DELETE FROM KichThuoc WHERE MaSize = '$sizeToDelete'";
-                $resDelete = mysqli_query($conn, $deleteSQL);
+    if (mysqli_num_rows($resultAllSize) > 0) {
+        while ($r = mysqli_fetch_assoc($resultAllSize)) {
+            $sizeList[] = $r['MaSize']; // Lưu tất cả size vào mảng
+        }
+    }
 
-                if($resDelete) 
-                {
-                    // nếu xóa thành công
-                    echo "Xóa size thành công.";
-                    header("Location: insert.php?mabienthe=$maBienThe"); // reload trang
-                    exit();
-                } 
-                else 
-                {
-                    // nếu xóa thất bại
-                    echo "Xóa thất bại: " . mysqli_error($conn);
-                }
+    //Xử lý nút thêm size mới
+    if (isset($_REQUEST['tensize'])) {
+        if (isset($_REQUEST['tensize']) && ($_REQUEST['tensize']) != "") {
+            $tenSize = $_REQUEST['tensize'];
+
+            $strSQL_tenSize = "INSERT INTO kichthuoc(TenSize) VALUES('$tenSize')";
+            $result_Insert_tenSize = mysqli_query($conn, $strSQL_tenSize);
+
+            if ($result_Insert_tenSize) {
+                header("Location: insert.php?mabienthe=$maBienThe");
+                exit();
             }
         }
+    }
 
+    // Nút xóa size
+    if (isset($_REQUEST['btnDeleteSize'])) {
+        $sizeToDelete = $_REQUEST['size'];
 
-////////////////////////////////////////////////////////////////////////////////////////
-        // Xử lý list chọn loại món ăn
-        $loaiList = [];
-        $strSQL_AllLoai = "SELECT MaLoai FROM loaimonan";
-        $resultAllLoai = mysqli_query($conn, $strSQL_AllLoai);
+        // Kiểm tra xem size có đang được sử dụng trong BienTheMonAn không
+        $checkSQL = "SELECT COUNT(*) AS cnt FROM BienTheMonAn WHERE MaSize = '$sizeToDelete'";
+        $resCheck = mysqli_query($conn, $checkSQL);
+        $rowCheck = mysqli_fetch_assoc($resCheck);
 
-        if(mysqli_num_rows($resultAllLoai) > 0)
-        {
-            while($r = mysqli_fetch_assoc($resultAllLoai))
-            {
-                $loaiList[] = $r['MaLoai']; 
+        if ($rowCheck['cnt'] > 0) {
+            // nếu size đang được dùng
+            echo "Không thể xóa size này vì đang có biến thể món ăn sử dụng.";
+        } else {
+            // nếu size chưa được dùng, tiến hành xóa
+            $deleteSQL = "DELETE FROM KichThuoc WHERE MaSize = '$sizeToDelete'";
+            $resDelete = mysqli_query($conn, $deleteSQL);
+
+            if ($resDelete) {
+                // nếu xóa thành công
+                echo "Xóa size thành công.";
+                header("Location: insert.php?mabienthe=$maBienThe"); // reload trang
+                exit();
+            } else {
+                // nếu xóa thất bại
+                echo "Xóa thất bại: " . mysqli_error($conn);
             }
         }
+    }
 
-        // Hàm xử lý loại món ăn
-        function LoaiMonAn($maloai)
-        {
-            $hostname = "localhost";
-            $username = "root";
-            $password = "";
-            $database = "quanly_cua_hang";
 
-            $conn = mysqli_connect($hostname, $username, $password, $database);
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // Xử lý list chọn loại món ăn
+    $loaiList = [];
+    $strSQL_AllLoai = "SELECT MaLoai FROM loaimonan";
+    $resultAllLoai = mysqli_query($conn, $strSQL_AllLoai);
 
-            $sql = "SELECT TenLoai FROM loaimonan WHERE MaLoai='$maloai'";
-            $result = mysqli_query($conn, $sql);
-
-            if($row = mysqli_fetch_assoc($result))
-                return $row['TenLoai'];
-
-            return "";
+    if (mysqli_num_rows($resultAllLoai) > 0) {
+        while ($r = mysqli_fetch_assoc($resultAllLoai)) {
+            $loaiList[] = $r['MaLoai'];
         }
+    }
 
-        // Nút thêm loại món ăn
-        if( isset($_REQUEST['tenloai']) )
-        {
-            if($_REQUEST['tenloai'] != "")
-            {
-                $tenLoaiMoi = $_REQUEST['tenloai'];
+    // Hàm xử lý loại món ăn
+    function LoaiMonAn($maloai)
+    {
+        $hostname = "localhost";
+        $username = "root";
+        $password = "";
+        $database = "quanly_cua_hang";
 
-                $sqlThemLoai = "INSERT INTO loaimonan(TenLoai) VALUES('$tenLoaiMoi')";
-                $resLoai = mysqli_query($conn, $sqlThemLoai);
+        $conn = mysqli_connect($hostname, $username, $password, $database);
 
-                if($resLoai)
-                {
-                    header("Location: insert.php?mabienthe=$maBienThe");
-                    exit();
-                }
+        $sql = "SELECT TenLoai FROM loaimonan WHERE MaLoai='$maloai'";
+        $result = mysqli_query($conn, $sql);
+
+        if ($row = mysqli_fetch_assoc($result))
+            return $row['TenLoai'];
+
+        return "";
+    }
+
+    // Nút thêm loại món ăn
+    if (isset($_REQUEST['tenloai'])) {
+        if ($_REQUEST['tenloai'] != "") {
+            $tenLoaiMoi = $_REQUEST['tenloai'];
+
+            $sqlThemLoai = "INSERT INTO loaimonan(TenLoai) VALUES('$tenLoaiMoi')";
+            $resLoai = mysqli_query($conn, $sqlThemLoai);
+
+            if ($resLoai) {
+                header("Location: insert.php?mabienthe=$maBienThe");
+                exit();
             }
         }
+    }
 
-        // Nút xóa loại món ăn
-        if(isset($_REQUEST['btnDeleteLoai']))
-        {
-            $loaiToDelete = $_REQUEST['loaimonan'];
+    // Nút xóa loại món ăn
+    if (isset($_REQUEST['btnDeleteLoai'])) {
+        $loaiToDelete = $_REQUEST['loaimonan'];
 
-            // Kiểm tra xem loại có đang được dùng
-            $checkSQL = "SELECT COUNT(*) AS cnt FROM monan WHERE MaLoai = '$loaiToDelete'";
-            $resCheck = mysqli_query($conn, $checkSQL);
-            $rowCheck = mysqli_fetch_assoc($resCheck);
+        // Kiểm tra xem loại có đang được dùng
+        $checkSQL = "SELECT COUNT(*) AS cnt FROM monan WHERE MaLoai = '$loaiToDelete'";
+        $resCheck = mysqli_query($conn, $checkSQL);
+        $rowCheck = mysqli_fetch_assoc($resCheck);
 
-            if($rowCheck['cnt'] > 0) 
-            {
-                echo "Không thể xóa loại này vì đang được sử dụng.";
-            } 
-            else 
-            {
-                $deleteSQL = "DELETE FROM loaimonan WHERE MaLoai = '$loaiToDelete'";
-                $resDelete = mysqli_query($conn, $deleteSQL);
+        if ($rowCheck['cnt'] > 0) {
+            echo "Không thể xóa loại này vì đang được sử dụng.";
+        } else {
+            $deleteSQL = "DELETE FROM loaimonan WHERE MaLoai = '$loaiToDelete'";
+            $resDelete = mysqli_query($conn, $deleteSQL);
 
-                if($resDelete)
-                {
-                    header("Location: insert.php?mabienthe=$maBienThe");
-                    exit();
-                }
-                else 
-                {
-                    echo "Xóa thất bại: " . mysqli_error($conn);
-                }
+            if ($resDelete) {
+                header("Location: insert.php?mabienthe=$maBienThe");
+                exit();
+            } else {
+                echo "Xóa thất bại: " . mysqli_error($conn);
             }
         }
+    }
 
 
     ?>
@@ -305,12 +302,11 @@
                 <td class="dropdownsize">
                     <select name="loaimonan">
                         <?php
-                            foreach($loaiList as $maloai)
-                            {
-                                $tenLoaiList = LoaiMonAn($maloai);
-                                $selected = (isset($maLoai) && $tenLoai == $tenLoaiList) ? "selected" : "";
-                                echo "<option value='$maloai' $selected>$tenLoaiList</option>";
-                            }
+                        foreach ($loaiList as $maloai) {
+                            $tenLoaiList = LoaiMonAn($maloai);
+                            $selected = (isset($maLoai) && $tenLoai == $tenLoaiList) ? "selected" : "";
+                            echo "<option value='$maloai' $selected>$tenLoaiList</option>";
+                        }
                         ?>
                     </select>
                     <input type="submit" name="btnDeleteLoai" value="Xóa loại" onclick="return confirm('Bạn có chắc muốn xóa loại này?');">
@@ -327,15 +323,14 @@
 
             <tr>
                 <td class="tieude">Size:</td>
-                <td  class="dropdownsize">
+                <td class="dropdownsize">
                     <select name="size">
                         <?php
-                            foreach($sizeList as $size)
-                            {
-                                $tenSizee = SizeMonAn($size); 
-                                $selected = (isset($maSize) && $size == $maSize) ? "selected" : "";
-                                echo "<option value='$size' $selected>$tenSizee</option>";
-                            }
+                        foreach ($sizeList as $size) {
+                            $tenSizee = SizeMonAn($size);
+                            $selected = (isset($maSize) && $size == $maSize) ? "selected" : "";
+                            echo "<option value='$size' $selected>$tenSizee</option>";
+                        }
                         ?>
                     </select>
                     <input type="submit" name="btnDeleteSize" value="Xóa size" onclick="return confirm('Bạn có chắc muốn xóa size này?');">
@@ -351,7 +346,7 @@
                     <input type="submit" class="btnsizemoi" name="btnthemsize" value="Thêm">
                 </td>
             </tr>
-            
+
 
             <tr>
                 <td class="tieude">Giá (VNĐ):</td>
@@ -364,9 +359,9 @@
             <tr>
                 <td class="tieude">Mô tả:</td>
                 <td class="noidung">
-                    <textarea name="mota" rows="4" cols="50"><?php 
-                        echo isset($moTa) ? $moTa : '';
-                    ?></textarea>
+                    <textarea name="mota" rows="4" cols="50"><?php
+                                                                echo isset($moTa) ? $moTa : '';
+                                                                ?></textarea>
                 </td>
             </tr>
 
@@ -384,10 +379,11 @@
         // Ẩn thông báo sau 3 giây
         setTimeout(function() {
             var msg = document.getElementById('message');
-            if(msg) {
+            if (msg) {
                 msg.style.display = 'none';
             }
         }, 3000);
     </script>
 </body>
+
 </html>

@@ -1,64 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chi Tiết Đơn Hàng</title>
     <link rel="stylesheet" href="./css/chi_tiet_don.css">
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
+
 <body>
     <?php include_once "includes/header2.php"; ?>
 
+    <!-- Kiểm tra user -->
     <?php
-        $hostname = "localhost";
-        $username = "root";
-        $password = "";
-        $dbname = "quanly_cua_hang";
+    // Kiểm tra xem session đã có MaUser chưa
+    if (isset($_SESSION['MaUser'])) {
+        $maUserCheck = $_SESSION['MaUser'];
 
-        $conn = mysqli_connect($hostname, $username, $password, $dbname);
-        if (!$conn) {
-            die("Connection failed: " . mysqli_connect_error());
-        }
+        // Truy vấn lấy QuyenHan hiện tại từ CSDL
+        $sqlRole = "SELECT QuyenHan FROM Users WHERE MaUser = ?";
+        $stmtRole = mysqli_prepare($conn, $sqlRole);
 
-        $orderId = isset($_GET['order_id']) ? (int)$_GET['order_id'] : 0;
+        if ($stmtRole) {
+            mysqli_stmt_bind_param($stmtRole, "i", $maUserCheck);
+            mysqli_stmt_execute($stmtRole);
+            $resultRole = mysqli_stmt_get_result($stmtRole);
+            $userRole = mysqli_fetch_assoc($resultRole);
 
-        if ($orderId <= 0) {
-            echo "<p class='error-message'>Mã đơn hàng không hợp lệ.</p>";
+            // Kiểm tra logic:
+            // 1. Không tìm thấy user trong DB
+            // 2. Hoặc QuyenHan không phải là 'admin'
+            if (!$userRole || $userRole['QuyenHan'] !== 'admin') {
+                header("Location: index.php");
+                exit();
+            }
+        } else {
+            // Lỗi câu lệnh SQL thì cũng cho về index để an toàn
+            header("Location: DangNhap.php");
             exit();
         }
+    } else {
+        // Chưa đăng nhập thì chuyển hướng về index
+        header("Location: DangNhap.php");
+        exit();
+    }
+    ?>
 
-        // 1. Lấy thông tin đơn hàng và khách
-        $sqlOrder = "SELECT dh.*, u.Ho, u.Ten, u.Email
+    <?php
+    include_once("includes/myenv.php");
+    $conn = mysqli_connect($db_host, $db_user, $db_password, $db_db, $db_port);
+    if (!$conn) {
+        die("Connection failed: " . mysqli_connect_error());
+    }
+
+    $orderId = isset($_GET['order_id']) ? (int)$_GET['order_id'] : 0;
+
+    if ($orderId <= 0) {
+        echo "<p class='error-message'>Mã đơn hàng không hợp lệ.</p>";
+        exit();
+    }
+
+    // 1. Lấy thông tin đơn hàng và khách
+    $sqlOrder = "SELECT dh.*, u.Ho, u.Ten, u.Email
                      FROM DonHang dh
                      LEFT JOIN Users u ON dh.MaUser = u.MaUser
                      WHERE dh.MaDonHang = $orderId";
-        $resOrder = mysqli_query($conn, $sqlOrder);
+    $resOrder = mysqli_query($conn, $sqlOrder);
 
-        if (!$resOrder || mysqli_num_rows($resOrder) == 0) {
-            echo "<p class='error-message'>Không tìm thấy đơn hàng.</p>";
-            exit();
-        }
+    if (!$resOrder || mysqli_num_rows($resOrder) == 0) {
+        echo "<p class='error-message'>Không tìm thấy đơn hàng.</p>";
+        exit();
+    }
 
-        $order = mysqli_fetch_assoc($resOrder);
+    $order = mysqli_fetch_assoc($resOrder);
 
-        // 2. Lấy chi tiết món trong đơn
-        $sqlItems = "SELECT c.MaChiTiet, c.MaBienThe, c.SoLuong, c.DonGia, c.ThanhTien,
+    // 2. Lấy chi tiết món trong đơn
+    $sqlItems = "SELECT c.MaChiTiet, c.MaBienThe, c.SoLuong, c.DonGia, c.ThanhTien,
                             b.MaMonAn, m.TenMonAn, m.HinhAnh, kt.TenSize
                      FROM ChiTietDonHang c
                      LEFT JOIN BienTheMonAn b ON c.MaBienThe = b.MaBienThe
                      LEFT JOIN MonAn m ON b.MaMonAn = m.MaMonAn
                      LEFT JOIN KichThuoc kt ON b.MaSize = kt.MaSize
                      WHERE c.MaDonHang = $orderId";
-        $resItems = mysqli_query($conn, $sqlItems);
+    $resItems = mysqli_query($conn, $sqlItems);
 
-        // 3. [MỚI] Lấy thông tin đánh giá (nếu có)
-        $sqlReview = "SELECT * FROM DanhGia WHERE MaDonHang = $orderId";
-        $resReview = mysqli_query($conn, $sqlReview);
-        $review = mysqli_fetch_assoc($resReview);
+    // 3. [MỚI] Lấy thông tin đánh giá (nếu có)
+    $sqlReview = "SELECT * FROM DanhGia WHERE MaDonHang = $orderId";
+    $resReview = mysqli_query($conn, $sqlReview);
+    $review = mysqli_fetch_assoc($resReview);
     ?>
 
     <div class="table-container" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
@@ -66,62 +99,64 @@
             <h2>CHI TIẾT ĐƠN HÀNG #<?php echo $orderId; ?></h2>
         </div>
 
-    <form class="form1">
-        <table>
-            <tr>
-                <td colspan="4"><h2>THÔNG TIN ĐƠN HÀNG</h2></td>
-            </tr>
-            <tr class="tieude">
-                <td>Mã đơn</td>
-                <td>Khách hàng</td>
-                <td>SĐT</td>
-                <td>Địa chỉ giao</td>
-            </tr>
-            <tr class="noidung">
-                <td><?php echo $order['MaDonHang']; ?></td>
-                <td><?php echo htmlspecialchars(trim($order['Ho'] . ' ' . $order['Ten'])); ?></td>
-                <td><?php echo htmlspecialchars($order['SDTGiaoHang']); ?></td>
-                <td><?php echo htmlspecialchars($order['DiaChiGiaoHang']); ?></td>
-            </tr>
+        <form class="form1">
+            <table>
+                <tr>
+                    <td colspan="4">
+                        <h2>THÔNG TIN ĐƠN HÀNG</h2>
+                    </td>
+                </tr>
+                <tr class="tieude">
+                    <td>Mã đơn</td>
+                    <td>Khách hàng</td>
+                    <td>SĐT</td>
+                    <td>Địa chỉ giao</td>
+                </tr>
+                <tr class="noidung">
+                    <td><?php echo $order['MaDonHang']; ?></td>
+                    <td><?php echo htmlspecialchars(trim($order['Ho'] . ' ' . $order['Ten'])); ?></td>
+                    <td><?php echo htmlspecialchars($order['SDTGiaoHang']); ?></td>
+                    <td><?php echo htmlspecialchars($order['DiaChiGiaoHang']); ?></td>
+                </tr>
 
-            <tr class="tieude">
-                <td>Phương thức</td>
-                <td>Trạng thái</td>
-                <td>Tổng tiền</td>
-                <td>Ngày đặt</td>
-            </tr>
-            <tr class="noidung">
-                <td><?php echo htmlspecialchars($order['PhuongThucThanhToan']); ?></td>
-                <td><?php echo htmlspecialchars($order['TrangThai']); ?></td>
-                <td><?php echo number_format($order['TongTien'], 0, ',', '.'); ?> VND</td>
-                <td><?php echo date('d/m/Y H:i', strtotime($order['NgayDat'])); ?></td>
-            </tr>
+                <tr class="tieude">
+                    <td>Phương thức</td>
+                    <td>Trạng thái</td>
+                    <td>Tổng tiền</td>
+                    <td>Ngày đặt</td>
+                </tr>
+                <tr class="noidung">
+                    <td><?php echo htmlspecialchars($order['PhuongThucThanhToan']); ?></td>
+                    <td><?php echo htmlspecialchars($order['TrangThai']); ?></td>
+                    <td><?php echo number_format($order['TongTien'], 0, ',', '.'); ?> VND</td>
+                    <td><?php echo date('d/m/Y H:i', strtotime($order['NgayDat'])); ?></td>
+                </tr>
 
-            <tr>
-                <td class="label-cell">Ghi chú</td>
-                <td colspan="3"><?php echo nl2br(htmlspecialchars($order['GhiChu'])); ?></td>
-            </tr>
-        </table>
-    </form>
+                <tr>
+                    <td class="label-cell">Ghi chú</td>
+                    <td colspan="3"><?php echo nl2br(htmlspecialchars($order['GhiChu'])); ?></td>
+                </tr>
+            </table>
+        </form>
 
-    <form class="form2">
-        <table>
-            <tr>
-                <td colspan="6"><h2>CHI TIẾT MÓN ĂN</h2></td>
-            </tr>
-            <tr class="tieude">
-                <td>Mã chi tiết</td>
-                <td>Tên món</td>
-                <td>Size</td>
-                <td>Số lượng</td>
-                <td>Đơn giá</td>
-                <td>Thành tiền</td>
-            </tr>
-            <?php
-                if ($resItems && mysqli_num_rows($resItems) > 0)
-                {
-                    while ($item = mysqli_fetch_assoc($resItems))
-                    {
+        <form class="form2">
+            <table>
+                <tr>
+                    <td colspan="6">
+                        <h2>CHI TIẾT MÓN ĂN</h2>
+                    </td>
+                </tr>
+                <tr class="tieude">
+                    <td>Mã chi tiết</td>
+                    <td>Tên món</td>
+                    <td>Size</td>
+                    <td>Số lượng</td>
+                    <td>Đơn giá</td>
+                    <td>Thành tiền</td>
+                </tr>
+                <?php
+                if ($resItems && mysqli_num_rows($resItems) > 0) {
+                    while ($item = mysqli_fetch_assoc($resItems)) {
                         echo "<tr class='noidung'>";
                         echo "<td>" . $item['MaChiTiet'] . "</td>";
                         echo "<td>" . htmlspecialchars($item['TenMonAn']) . "</td>";
@@ -131,59 +166,60 @@
                         echo "<td>" . number_format($item['ThanhTien'], 0, ',', '.') . "</td>";
                         echo "</tr>";
                     }
-                }
-                else
-                {
+                } else {
                     echo "<tr><td colspan='6'>Không có sản phẩm trong đơn.</td></tr>";
                 }
-            ?>
-        </table>
-    </form>
+                ?>
+            </table>
+        </form>
 
-    <form class="form2" style="margin-top: 10px;">
-        <table>
-            <tr>
-                <td colspan="2"><h2>ĐÁNH GIÁ TỪ KHÁCH HÀNG</h2></td>
-            </tr>
-            <?php if ($review): ?>
-                <tr class="tieude">
-                    <td style="width: 20%;">Tiêu chí</td>
-                    <td>Nội dung</td>
-                </tr>
-                <tr class="noidung">
-                    <td style="font-weight: bold; color: #d35400;">Điểm đánh giá</td>
-                    <td style="font-weight: bold; font-size: 16px;">
-                        <?php echo $review['Diem']; ?> sao
-                    </td>
-                </tr>
-                <tr class="noidung">
-                    <td style="font-weight: bold;">Nhận xét</td>
-                    <td style="font-style: italic; color: #555;">
-                        "<?php echo nl2br(htmlspecialchars($review['NoiDung'])); ?>"
-                    </td>
-                </tr>
-                <tr class="noidung">
-                    <td>Ngày đánh giá</td>
-                    <td><?php echo date('d/m/Y H:i', strtotime($review['NgayTao'])); ?></td>
-                </tr>
-            <?php else: ?>
+        <form class="form2" style="margin-top: 10px;">
+            <table>
                 <tr>
-                    <td colspan="2" style="text-align: center; padding: 20px; color: #7f8c8d;">
-                        <em>Đơn hàng này chưa có đánh giá nào.</em>
+                    <td colspan="2">
+                        <h2>ĐÁNH GIÁ TỪ KHÁCH HÀNG</h2>
                     </td>
                 </tr>
-            <?php endif; ?>
-            
-            <tr>
-                <td colspan="2" class="tdbtn">
-                    <a href="duyet_don.php" class="btnBack">Quay lại danh sách</a>
-                </td>
-            </tr>
-        </table>
-    </form>
+                <?php if ($review): ?>
+                    <tr class="tieude">
+                        <td style="width: 20%;">Tiêu chí</td>
+                        <td>Nội dung</td>
+                    </tr>
+                    <tr class="noidung">
+                        <td style="font-weight: bold; color: #d35400;">Điểm đánh giá</td>
+                        <td style="font-weight: bold; font-size: 16px;">
+                            <?php echo $review['Diem']; ?> sao
+                        </td>
+                    </tr>
+                    <tr class="noidung">
+                        <td style="font-weight: bold;">Nhận xét</td>
+                        <td style="font-style: italic; color: #555;">
+                            "<?php echo nl2br(htmlspecialchars($review['NoiDung'])); ?>"
+                        </td>
+                    </tr>
+                    <tr class="noidung">
+                        <td>Ngày đánh giá</td>
+                        <td><?php echo date('d/m/Y H:i', strtotime($review['NgayTao'])); ?></td>
+                    </tr>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="2" style="text-align: center; padding: 20px; color: #7f8c8d;">
+                            <em>Đơn hàng này chưa có đánh giá nào.</em>
+                        </td>
+                    </tr>
+                <?php endif; ?>
 
-    <?php mysqli_close($conn); ?>
+                <tr>
+                    <td colspan="2" class="tdbtn">
+                        <a href="duyet_don.php" class="btnBack">Quay lại danh sách</a>
+                    </td>
+                </tr>
+            </table>
+        </form>
 
-    </div> 
+        <?php mysqli_close($conn); ?>
+
+    </div>
 </body>
+
 </html>

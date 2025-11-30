@@ -93,7 +93,7 @@ CREATE TABLE DonHang (
     MaUser INT NOT NULL,
     TongTien DECIMAL(18,2) NOT NULL,
     TrangThai ENUM('cho_xac_nhan', 'dang_xu_ly', 'dang_giao', 'hoan_thanh', 'da_huy') DEFAULT 'cho_xac_nhan',
-    PhuongThucThanhToan ENUM('tien_mat', 'chuyen_khoan', 'the', 'vi_dien_tu'),
+    PhuongThucThanhToan ENUM('tien_mat', 'chuyen_khoan', 'the', 'vi_dien_tu', 'momo'),
     DiaChiGiaoHang TEXT,
     SDTGiaoHang VARCHAR(15),
     GhiChu TEXT,
@@ -398,8 +398,8 @@ UPDATE MonAn SET MoTa = '1 ly thức uống cacao đậm vị, pha với sữa v
 
 INSERT INTO Users (Ho, Ten, SDT, Email, DiaChi, QuyenHan, MatKhau) VALUES
 ('Quản', 'Trị Viên', '0901234567', 'admin@quanlycuahang.com', '123 Đường Quản Lý, Quận 1, TP.HCM', 'admin', UNHEX(SHA2('Admin@123', 256))),
-('Nguyễn Văn', 'An', '0912345678', 'nguyenvanan@gmail.com', '456 Nguyễn Văn Linh, Quận 7, TP.HCM', 'khachhang', UNHEX(SHA2('Customer@123', 256))),
-('Trần Thị', 'Bình', '0923456789', 'tranthibinh@gmail.com', '789 Lê Văn Việt, Quận 9, TP.HCM', 'khachhang', UNHEX(SHA2('Customer@123', 256)));
+('Nguyễn Văn', 'An', '0912345678', 'nguyenvanan@gmail.com', '456 Nguyễn Văn Linh, Quận 7, TP.HCM', 'khachhang', UNHEX(SHA2('123456', 256))),
+('Trần Thị', 'Bình', '0923456789', 'tranthibinh@gmail.com', '789 Lê Văn Việt, Quận 9, TP.HCM', 'khachhang', UNHEX(SHA2('123456', 256)));
 
 -- --------------------------------------------------------
 -- PHẦN 7: CHÈN DỮ LIỆU GIỎ HÀNG
@@ -540,15 +540,6 @@ UPDATE MonAn SET HinhAnh = REPLACE(HinhAnh, '.webp', '.jpg');
 
 -- 3. (Phụ trợ) Đổi đuôi .png thành .jpg (nếu có) để đồng bộ tuyệt đối
 UPDATE MonAn SET HinhAnh = REPLACE(HinhAnh, '.png', '.jpg');
-
-
-
-
-
-
-
-
-USE quanly_cua_hang;
 
 -- 1. Xóa bảng Đánh giá cũ
 DROP TABLE IF EXISTS DanhGia;

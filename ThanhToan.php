@@ -254,6 +254,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['btnThanhToan'])) {
                                         </div>
                                         <div class="radio-checkmark"></div>
                                     </label>
+
+                                    <label class="payment-method">
+                                        <input type="radio" name="phuongthuc" value="momo" id="payment_momo">
+                                        <div class="method-content">
+                                            <div class="method-icon">
+                                                <img src="img/icon/MoMo_Logo.png" alt="MoMo" class="momo-icon">
+                                            </div>
+                                            <div class="method-info">
+                                                <div class="method-title">Ví MoMo</div>
+                                                <div class="method-desc">Quét mã QR để thanh toán</div>
+                                            </div>
+                                        </div>
+                                        <div class="radio-checkmark"></div>
+                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -344,6 +358,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['btnThanhToan'])) {
     <script src="js/thanhtoan.js"></script>
 
     <?php include_once "includes/footer.php"; ?>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var form = document.getElementById("checkoutForm");
+            var radios = document.getElementsByName("phuongthuc");
+
+            // Hàm kiểm tra phương thức đang chọn
+            function updateAction() {
+                var selected = document.querySelector('input[name="phuongthuc"]:checked').value;
+
+                if (selected === 'momo') {
+                    // Nếu chọn MoMo, gửi dữ liệu sang file xử lý riêng
+                    form.action = "xuly_momo.php";
+                } else {
+                    // Nếu chọn cái khác, gửi lại chính trang này (để code PHP cũ xử lý)
+                    form.action = "";
+                }
+            }
+
+            // Lắng nghe sự kiện thay đổi radio button
+            for (var i = 0; i < radios.length; i++) {
+                radios[i].addEventListener('change', updateAction);
+            }
+
+            // Kiểm tra ngay khi tải trang (trường hợp user back lại)
+            // updateAction(); // Bỏ comment nếu muốn check mặc định
+        });
+    </script>
 </body>
 
 </html>

@@ -2,8 +2,17 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-include_once("includes/myenv.php");
 ?>
+
+<!-- Mở kết nối -->
+    <?php
+    include_once("includes/myenv.php");
+    $conn = mysqli_connect($db_host, $db_user, $db_password, $db_db, $db_port);
+    if (!$conn) {
+        die("Connection failed: " . mysqli_connect_error());
+    }
+
+    ?>
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -39,6 +48,8 @@ include_once("includes/myenv.php");
             <a href="duyet_dat_ban.php"><i class="fas fa-table"></i> Duyệt đặt bàn</a>
 
             <a href="duyet_su_kien.php"><i class="fas fa-calendar-check"></i> Duyệt sự kiện</a>
+
+            <a href="thong_ke.php"><i class="fas fa-chart-bar"></i> Thống kê doanh thu</a>
 
             <div class="dropdown-divider"></div>
 

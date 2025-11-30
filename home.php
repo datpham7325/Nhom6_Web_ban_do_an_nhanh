@@ -27,6 +27,41 @@
 
     ?>
 
+    <!-- Kiểm tra user -->
+    <?php
+        // Kiểm tra xem session đã có MaUser chưa
+        if (isset($_SESSION['MaUser'])) {
+            $maUserCheck = $_SESSION['MaUser'];
+
+            // Truy vấn lấy QuyenHan hiện tại từ CSDL
+            $sqlRole = "SELECT QuyenHan FROM Users WHERE MaUser = ?";
+            $stmtRole = mysqli_prepare($conn, $sqlRole);
+            
+            if ($stmtRole) {
+                mysqli_stmt_bind_param($stmtRole, "i", $maUserCheck);
+                mysqli_stmt_execute($stmtRole);
+                $resultRole = mysqli_stmt_get_result($stmtRole);
+                $userRole = mysqli_fetch_assoc($resultRole);
+
+                // Kiểm tra logic:
+                // 1. Không tìm thấy user trong DB
+                // 2. Hoặc QuyenHan không phải là 'admin'
+                if (!$userRole || $userRole['QuyenHan'] !== 'admin') {
+                    header("Location: index.php");
+                    exit();
+                }
+            } else {
+                // Lỗi câu lệnh SQL thì cũng cho về index để an toàn
+                header("Location: DangNhap.php");
+                exit();
+            }
+        } else {
+            // Chưa đăng nhập thì chuyển hướng về index
+            header("Location: DangNhap.php");
+            exit();
+        }
+    ?>
+
     <!-- Phân trang -->
     <?php
     //Khởi tạo biến tìm kiếm

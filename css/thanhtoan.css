@@ -592,3 +592,36 @@ body {
         text-align: left;
     }
 }
+
+/* Chỉnh sửa lại class method-icon để hỗ trợ căn giữa cho ảnh */
+.method-icon {
+    font-size: 24px;
+    width: 32px;
+    height: 32px; /* Đặt chiều cao cố định để căn giữa */
+    text-align: center;
+    display: flex;        /* Sử dụng flexbox */
+    align-items: center;  /* Căn giữa theo chiều dọc */
+    justify-content: center; /* Căn giữa theo chiều ngang */
+}
+
+/* Style riêng cho ảnh logo MoMo */
+.momo-icon {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+    border-radius: 4px; /* Bo góc nhẹ cho giống icon ứng dụng */
+    display: block;
+}
+
+/* Hiệu ứng khi chọn vào phương thức MoMo (tùy chọn border màu hồng) */
+.payment-method input[type="radio"]:checked ~ .method-content .momo-icon {
+    box-shadow: 0 0 0 1px #a50064;
+}
+
+/* Responsive cho mobile */
+@media (max-width: 480px) {
+    .momo-icon {
+        width: 24px;
+        height: 24px;
+    }
+}
